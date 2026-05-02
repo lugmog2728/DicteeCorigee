@@ -11,6 +11,66 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
+  /* Ocean-blue palette */
+  --ocean-blue-50: #C1EEF7;
+  --ocean-blue-100: #ABE3EF;
+  --ocean-blue-200: #80CFDE;
+  --ocean-blue-300: #56BACE;
+  --ocean-blue-400: #2BA6BD;
+  --ocean-blue-500: #0091AD;
+  --ocean-blue-600: #00748A;
+  --ocean-blue-700: #005798;
+  --ocean-blue-800: #003A45;
+  --ocean-blue-900: #001D23;
+
+  /* Aqua-mist palette */
+  --aqua-mist-50: #F7FFFF;
+  --aqua-mist-100: #E9FEFE;
+  --aqua-mist-200: #C5FDFD;
+  --aqua-mist-300: #A8FCFD;
+  --aqua-mist-400: #8BFBFC;
+  --aqua-mist-500: #6EFAFB;
+  --aqua-mist-600: #58D5D5;
+  --aqua-mist-700: #43AFB0;
+  --aqua-mist-800: #2D8A8A;
+  --aqua-mist-900: #186465;
+
+  /* Soft-blush palette */
+  --soft-blush-50: #FFFEFC;
+  --soft-blush-100: #FFFDFA;
+  --soft-blush-200: #FFFBF4;
+  --soft-blush-300: #FFFBEF;
+  --soft-blush-400: #FFFBE9;
+  --soft-blush-500: #FFF4E4;
+  --soft-blush-600: #FFEACA;
+  --soft-blush-700: #FFDFA1;
+  --soft-blush-800: #FFD567;
+  --soft-blush-900: #FFCA7E;
+
+  /* Sunlight-sand palette */
+  --sunlight-sand-50: #FEF0F6;
+  --sunlight-sand-100: #FDFAED;
+  --sunlight-sand-200: #FCF6DB;
+  --sunlight-sand-300: #FAF5C9;
+  --sunlight-sand-400: #F9EDB6;
+  --sunlight-sand-500: #F7E9A4;
+  --sunlight-sand-600: #ECDB87;
+  --sunlight-sand-700: #E0CB69;
+  --sunlight-sand-800: #D5BC4C;
+  --sunlight-sand-900: #C9AE2E;
+
+  /* Electric-pink palette */
+  --electric-pink-50: #FFEEF8;
+  --electric-pink-100: #FFD0F1;
+  --electric-pink-200: #FF8EC4;
+  --electric-pink-300: #FF9AD6;
+  --electric-pink-400: #FF79CB;
+  --electric-pink-500: #FFF37BB;
+  --electric-pink-600: #D5489B;
+  --electric-pink-700: #AB347B;
+  --electric-pink-800: #82235C;
+  --electric-pink-900: #58113C;
+
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
