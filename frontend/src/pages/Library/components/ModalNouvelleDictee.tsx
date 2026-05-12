@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, ChevronDown } from 'lucide-react'
 import Button from '../../../components/Button'
+import type { DicteeCreate } from '../../../api/dictees'
 
 interface ErrorCounts {
   conjugaison: number
@@ -16,7 +17,7 @@ interface ErrorCounts {
 
 interface ModalNouvelleDicteeProps {
   onClose: () => void
-  onSubmit?: (data: unknown) => void
+  onSubmit?: (data: DicteeCreate) => Promise<void>
 }
 
 const errorCategories: { key: keyof ErrorCounts; letter: string; label: string; border: string }[] = [
@@ -33,8 +34,8 @@ const errorCategories: { key: keyof ErrorCounts; letter: string; label: string; 
 
 export default function ModalNouvelleDictee({ onClose, onSubmit }: ModalNouvelleDicteeProps) {
   const [titre, setTitre] = useState('')
-  const [niveau, setNiveau] = useState('')
-  const [periode, setPeriode] = useState('')
+  const [niveau, setNiveau] = useState<DicteeCreate['niveau'] | ''>('')
+  const [periode, setPeriode] = useState<DicteeCreate['periode'] | ''>('')
   const [tag, setTag] = useState('')
   const [duree, setDuree] = useState('')
   const [description, setDescription] = useState('')
@@ -48,8 +49,28 @@ export default function ModalNouvelleDictee({ onClose, onSubmit }: ModalNouvelle
   const fieldClass = 'bg-[#f3f3f5] border border-[rgba(0,0,0,0)] rounded-[8px] px-3 text-[14px] text-[#717182] placeholder:text-[#717182] outline-none focus:border-[var(--ocean-blue-500)] w-full'
   const labelClass = 'text-[14px] font-medium text-[#0a0a0a] leading-[14px] mb-2 block'
 
-  function handleSubmit() {
-    onSubmit?.({ titre, niveau, periode, tag, duree, description, texte, errors })
+  async function handleSubmit() {
+    if (!niveau || !periode) return
+    await onSubmit?.({
+      titre,
+      niveau: niveau as DicteeCreate['niveau'],
+      periode: periode as DicteeCreate['periode'],
+      tag: tag || undefined,
+      duree: Number(duree) || 15,
+      description: description || undefined,
+      texte,
+      errors: {
+        conjugaison:  errors.conjugaison,
+        homophone:    errors.homophone,
+        accord:       errors.accord,
+        majuscule:    errors.majuscule,
+        ponctuation:  errors.ponctuation,
+        infinitif:    errors.infinitif,
+        orthographe:  errors.orthographe,
+        nonPresent:   errors.nonPresent,
+        son:          errors.son,
+      },
+    })
     onClose()
   }
 
@@ -89,7 +110,7 @@ export default function ModalNouvelleDictee({ onClose, onSubmit }: ModalNouvelle
                 <select
                   className={`${fieldClass} h-[36px] appearance-none pr-8`}
                   value={niveau}
-                  onChange={e => setNiveau(e.target.value)}
+                  onChange={e => setNiveau(e.target.value as DicteeCreate['niveau'])}
                 >
                   <option value="" disabled>Sélectionner</option>
                   <option>CP</option>
@@ -107,7 +128,7 @@ export default function ModalNouvelleDictee({ onClose, onSubmit }: ModalNouvelle
                 <select
                   className={`${fieldClass} h-[36px] appearance-none pr-8`}
                   value={periode}
-                  onChange={e => setPeriode(e.target.value)}
+                  onChange={e => setPeriode(e.target.value as DicteeCreate['periode'])}
                 >
                   <option value="" disabled>Sélectionner</option>
                   <option>Présent</option>

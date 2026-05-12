@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Typography from '../../components/Typography'
 import StatCard from '../../components/StatCard'
 import CardDictee from './components/CardDictee'
@@ -7,74 +7,53 @@ import ModalNouvelleDictee from './components/ModalNouvelleDictee'
 import ModalVoirDictee from './components/ModalVoirDictee'
 import Button from '../../components/Button'
 import { BookOpen, CheckCircle, Clock, Plus, Users } from 'lucide-react'
+import { getDictees, createDictee } from '../../api/dictees'
+import type { DicteeApi, DicteeCreate } from '../../api/dictees'
 import type { BadgeVariant } from '../../components/Badge'
 
-interface Dictee {
-  title: string
-  description: string
-  texte: string
-  badges: { label: string; variant: BadgeVariant }[]
-  wordCount: number
-  duration: number
+function getDicteeBadges(dictee: DicteeApi): { label: string; variant: BadgeVariant }[] {
+  const badges: { label: string; variant: BadgeVariant }[] = []
+  badges.push({ label: dictee.niveau, variant: 'ocean' })
+  badges.push({ label: dictee.periode, variant: dictee.periode === 'Passé' ? 'sand' : 'aqua' })
+  if (dictee.tag) badges.push({ label: dictee.tag, variant: 'purple' })
+  return badges
 }
 
-const dictees: Dictee[] = [
-  {
-    title: 'Le printemps',
-    description: 'Dictée simple sur le printemps avec des verbes au présent',
-    texte: "Le printemps arrive avec les beaux jours. Les fleurs poussent dans le jardin. Les oiseaux chantent dans les arbres. Les enfants jouent dehors après l'école.",
-    badges: [
-      { label: 'CE1', variant: 'ocean' as const },
-      { label: 'Présent', variant: 'aqua' as const },
-      { label: 'Nature', variant: 'purple' as const },
-    ],
-    wordCount: 28,
-    duration: 15,
-  },
-  {
-    title: 'La forêt en hiver',
-    description: 'Texte descriptif sur la forêt en hiver, avec des accords complexes',
-    texte: "La forêt en hiver est silencieuse et froide. Les arbres ont perdu leurs feuilles. La neige recouvre le sol d'un manteau blanc. Les animaux se cachent dans leurs terriers.",
-    badges: [
-      { label: 'CE2', variant: 'ocean' as const },
-      { label: 'Passé', variant: 'sand' as const },
-      { label: 'Nature', variant: 'purple' as const },
-    ],
-    wordCount: 42,
-    duration: 20,
-  },
-  {
-    title: 'La ville de Paris',
-    description: 'Dictée sur Paris et ses monuments, vocabulaire de géographie',
-    texte: "Paris est la capitale de la France. La tour Eiffel se dresse au bord de la Seine. Des millions de touristes visitent la ville chaque année. Le musée du Louvre abrite de nombreuses œuvres d'art célèbres.",
-    badges: [
-      { label: 'CM1', variant: 'ocean' as const },
-      { label: 'Présent', variant: 'aqua' as const },
-      { label: 'Histoire', variant: 'pink' as const },
-    ],
-    wordCount: 55,
-    duration: 25,
-  },
-  {
-    title: 'Les animaux de la ferme',
-    description: 'Dictée ludique sur les animaux pour les plus jeunes élèves',
-    texte: "À la ferme, il y a des vaches, des moutons et des poules. Le coq chante le matin pour réveiller tout le monde. Les enfants aiment donner à manger aux animaux.",
-    badges: [
-      { label: 'CP', variant: 'ocean' as const },
-      { label: 'Présent', variant: 'aqua' as const },
-      { label: 'Nature', variant: 'purple' as const },
-    ],
-    wordCount: 18,
-    duration: 10,
-  },
-]
+function countWords(texte: string): number {
+  return texte.trim().split(/\s+/).filter(Boolean).length
+}
 
 export default function Library() {
+  const [dictees, setDictees] = useState<DicteeApi[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [level, setLevel] = useState('Tous niveaux')
   const [period, setPeriod] = useState('Toutes périodes')
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedDictee, setSelectedDictee] = useState<Dictee | null>(null)
+  const [selectedDictee, setSelectedDictee] = useState<DicteeApi | null>(null)
+
+  async function fetchDictees() {
+    try {
+      const data = await getDictees({
+        niveau:  level  !== 'Tous niveaux'    ? level  : undefined,
+        periode: period !== 'Toutes périodes' ? period : undefined,
+      })
+      setDictees(data)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { fetchDictees() }, [level, period])
+
+  async function handleCreate(data: DicteeCreate) {
+    await createDictee(data)
+    await fetchDictees()
+  }
+
+  const filtered = dictees.filter(d =>
+    d.titre.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -92,12 +71,21 @@ export default function Library() {
       </div>
 
       {isModalOpen && (
-        <ModalNouvelleDictee onClose={() => setIsModalOpen(false)} />
+        <ModalNouvelleDictee
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleCreate}
+        />
       )}
 
       {selectedDictee && (
         <ModalVoirDictee
-          {...selectedDictee}
+          title={selectedDictee.titre}
+          description={selectedDictee.description ?? ''}
+          texte={selectedDictee.texte}
+          wordCount={countWords(selectedDictee.texte)}
+          duration={selectedDictee.duree}
+          badges={getDicteeBadges(selectedDictee)}
+          errors={selectedDictee.errors}
           onClose={() => setSelectedDictee(null)}
           onPlan={() => setSelectedDictee(null)}
         />
@@ -106,7 +94,7 @@ export default function Library() {
       <div className="grid grid-cols-4 gap-4">
         <StatCard
           title="Total dictées"
-          value={24}
+          value={dictees.length}
           subtitle="Textes disponibles"
           icon={BookOpen}
           iconBg="var(--aqua-mist-100)"
@@ -114,7 +102,7 @@ export default function Library() {
         />
         <StatCard
           title="Publiées"
-          value={18}
+          value={dictees.length}
           subtitle="Accessibles aux classes"
           icon={CheckCircle}
           iconBg="var(--soft-blush-500)"
@@ -122,7 +110,7 @@ export default function Library() {
         />
         <StatCard
           title="En attente"
-          value={6}
+          value={0}
           subtitle="Brouillons non publiés"
           icon={Clock}
           iconBg="var(--sunlight-sand-100)"
@@ -147,16 +135,24 @@ export default function Library() {
         onPeriodChange={setPeriod}
       />
 
-      <div className="grid grid-cols-4 gap-4">
-        {dictees.map((dictee) => (
-          <CardDictee
-            key={dictee.title}
-            {...dictee}
-            onPlan={() => {}}
-            onView={() => setSelectedDictee(dictee)}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <p className="text-sm text-(--text)">Chargement...</p>
+      ) : (
+        <div className="grid grid-cols-4 gap-4">
+          {filtered.map((dictee) => (
+            <CardDictee
+              key={dictee.id}
+              title={dictee.titre}
+              description={dictee.description ?? ''}
+              badges={getDicteeBadges(dictee)}
+              wordCount={countWords(dictee.texte)}
+              duration={dictee.duree}
+              onPlan={() => {}}
+              onView={() => setSelectedDictee(dictee)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
