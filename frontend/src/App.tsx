@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
-import Dashboard from './pages/Dashboard'
-import Library from './pages/Library'
-import Planning from './pages/Planning'
-import Classes from './pages/Classes'
-import Statistics from './pages/Statistics'
+import Dashboard from './pages/Dashboard/index'
+import Library from './pages/Library/index'
+import Planning from './pages/Planning/index'
+import Classes from './pages/Classes/index'
+import Statistics from './pages/Statistics/index'
 
 function App() {
   return (
