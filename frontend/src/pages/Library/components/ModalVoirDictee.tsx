@@ -2,6 +2,7 @@ import { X, AlignLeft, Clock } from 'lucide-react'
 import Badge from '../../../components/Badge'
 import Button from '../../../components/Button'
 import type { BadgeVariant } from '../../../components/Badge'
+import type { ErrorCounts } from '../../../api/dictees'
 
 interface DicteeBadge {
   label: string
@@ -15,19 +16,25 @@ interface ModalVoirDicteeProps {
   wordCount: number
   duration: number
   badges: DicteeBadge[]
+  errors: ErrorCounts
   onClose: () => void
   onPlan?: () => void
 }
 
+const errorCategories: { key: keyof ErrorCounts; letter: string; label: string; border: string }[] = [
+  { key: 'conjugaison', letter: 'C', label: 'Conjugaison',  border: 'var(--ocean-blue-500)' },
+  { key: 'homophone',   letter: 'H', label: 'Homophone',    border: 'var(--ocean-blue-200)' },
+  { key: 'accord',      letter: 'A', label: 'Accord',       border: 'var(--electric-pink-500)' },
+  { key: 'majuscule',   letter: 'M', label: 'Majuscule',    border: 'var(--soft-blush-800)' },
+  { key: 'ponctuation', letter: 'P', label: 'Ponctuation',  border: 'var(--sunlight-sand-700)' },
+  { key: 'infinitif',   letter: 'I', label: 'Infinitif',    border: 'var(--ocean-blue-500)' },
+  { key: 'orthographe', letter: 'O', label: 'Orthographe',  border: 'var(--electric-pink-700)' },
+  { key: 'nonPresent',  letter: 'N', label: 'Non présent',  border: 'var(--aqua-mist-600)' },
+  { key: 'son',         letter: 'S', label: 'Son',          border: 'var(--soft-blush-900)' },
+]
+
 export default function ModalVoirDictee({
-  title,
-  description,
-  texte,
-  wordCount,
-  duration,
-  badges,
-  onClose,
-  onPlan,
+  title, description, texte, wordCount, duration, badges, errors, onClose, onPlan,
 }: ModalVoirDicteeProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -52,7 +59,7 @@ export default function ModalVoirDictee({
             ))}
           </div>
 
-          {/* Meta : mots + durée */}
+          {/* Meta */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 text-[14px] text-[#4a5565]">
               <AlignLeft size={16} />
@@ -65,18 +72,42 @@ export default function ModalVoirDictee({
           </div>
 
           {/* Description */}
-          <div className="bg-[#eff6ff] border border-[#bedbff] rounded-[10px] px-[12.8px] pt-[12.8px] pb-2">
-            <p className="text-[14px] leading-[20px] text-[#1c398e]">
-              <strong>Description :</strong>{' '}
-              <span className="font-normal">{description}</span>
-            </p>
-          </div>
+          {description && (
+            <div className="bg-[#eff6ff] border border-[#bedbff] rounded-[10px] px-[12.8px] pt-[12.8px] pb-2">
+              <p className="text-[14px] leading-[20px] text-[#1c398e]">
+                <strong>Description :</strong>{' '}
+                <span className="font-normal">{description}</span>
+              </p>
+            </div>
+          )}
 
           {/* Texte de la dictée */}
           <div className="flex flex-col gap-2">
             <p className="text-[14px] font-medium text-[#364153] leading-[20px]">Texte de la dictée</p>
             <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-[10px] px-[16.8px] pt-[16.8px] pb-2">
               <p className="text-[14px] leading-[22.75px] text-[#101828]">{texte}</p>
+            </div>
+          </div>
+
+          {/* Erreurs */}
+          <div className="flex flex-col gap-2">
+            <p className="text-[14px] font-medium text-[#364153] leading-[20px]">Nombre d'erreurs</p>
+            <div className="bg-[#f9fafb] border border-[#d1d5dc] rounded-[8px] p-4 grid grid-cols-3 gap-2.5">
+              {errorCategories.map(cat => (
+                <div
+                  key={cat.key}
+                  className="bg-white rounded-[10px] flex items-center justify-between p-[13.6px] h-[71px]"
+                  style={{ border: `1.6px solid ${cat.border}` }}
+                >
+                  <div className="flex flex-col items-center justify-center">
+                    <span className="text-[18px] font-bold text-[#364153] leading-[28px]">{cat.letter}</span>
+                    <span className="text-[12px] text-[#4a5565] leading-[16px]">{cat.label}</span>
+                  </div>
+                  <div className="border border-[#d1d5dc] rounded-[8px] w-[62px] h-[33px] flex items-center justify-center">
+                    <span className="text-[16px] text-[rgba(10,10,10,0.7)] font-medium">{errors[cat.key]}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
