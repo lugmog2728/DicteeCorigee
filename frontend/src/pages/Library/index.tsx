@@ -3,12 +3,26 @@ import Typography from '../../components/Typography'
 import StatCard from '../../components/StatCard'
 import CardDictee from './components/CardDictee'
 import LibraryFilters from './components/LibraryFilters'
-import { BookOpen, CheckCircle, Clock, Users } from 'lucide-react'
+import ModalNouvelleDictee from './components/ModalNouvelleDictee'
+import ModalVoirDictee from './components/ModalVoirDictee'
+import Button from '../../components/Button'
+import { BookOpen, CheckCircle, Clock, Plus, Users } from 'lucide-react'
+import type { BadgeVariant } from '../../components/Badge'
 
-const dictees = [
+interface Dictee {
+  title: string
+  description: string
+  texte: string
+  badges: { label: string; variant: BadgeVariant }[]
+  wordCount: number
+  duration: number
+}
+
+const dictees: Dictee[] = [
   {
     title: 'Le printemps',
-    description: 'Dictée simple sur le printemps avec un vocabulaire adapté au CE2',
+    description: 'Dictée simple sur le printemps avec des verbes au présent',
+    texte: "Le printemps arrive avec les beaux jours. Les fleurs poussent dans le jardin. Les oiseaux chantent dans les arbres. Les enfants jouent dehors après l'école.",
     badges: [
       { label: 'CE1', variant: 'ocean' as const },
       { label: 'Présent', variant: 'aqua' as const },
@@ -20,6 +34,7 @@ const dictees = [
   {
     title: 'La forêt en hiver',
     description: 'Texte descriptif sur la forêt en hiver, avec des accords complexes',
+    texte: "La forêt en hiver est silencieuse et froide. Les arbres ont perdu leurs feuilles. La neige recouvre le sol d'un manteau blanc. Les animaux se cachent dans leurs terriers.",
     badges: [
       { label: 'CE2', variant: 'ocean' as const },
       { label: 'Passé', variant: 'sand' as const },
@@ -31,6 +46,7 @@ const dictees = [
   {
     title: 'La ville de Paris',
     description: 'Dictée sur Paris et ses monuments, vocabulaire de géographie',
+    texte: "Paris est la capitale de la France. La tour Eiffel se dresse au bord de la Seine. Des millions de touristes visitent la ville chaque année. Le musée du Louvre abrite de nombreuses œuvres d'art célèbres.",
     badges: [
       { label: 'CM1', variant: 'ocean' as const },
       { label: 'Présent', variant: 'aqua' as const },
@@ -42,6 +58,7 @@ const dictees = [
   {
     title: 'Les animaux de la ferme',
     description: 'Dictée ludique sur les animaux pour les plus jeunes élèves',
+    texte: "À la ferme, il y a des vaches, des moutons et des poules. Le coq chante le matin pour réveiller tout le monde. Les enfants aiment donner à manger aux animaux.",
     badges: [
       { label: 'CP', variant: 'ocean' as const },
       { label: 'Présent', variant: 'aqua' as const },
@@ -56,13 +73,35 @@ export default function Library() {
   const [search, setSearch] = useState('')
   const [level, setLevel] = useState('Tous niveaux')
   const [period, setPeriod] = useState('Toutes périodes')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedDictee, setSelectedDictee] = useState<Dictee | null>(null)
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <Typography variant="h1">Bibliothèque</Typography>
-        <Typography variant="subtitle">Gérez vos textes de dictées et planifiez-les pour vos classes</Typography>
+      <div className="flex items-start justify-between">
+        <div>
+          <Typography variant="h1">Bibliothèque</Typography>
+          <Typography variant="subtitle">Gérez vos textes de dictées et planifiez-les pour vos classes</Typography>
+        </div>
+        <Button
+          label="Nouvelle dictée"
+          variant="primary"
+          icon={<Plus size={16} />}
+          onClick={() => setIsModalOpen(true)}
+        />
       </div>
+
+      {isModalOpen && (
+        <ModalNouvelleDictee onClose={() => setIsModalOpen(false)} />
+      )}
+
+      {selectedDictee && (
+        <ModalVoirDictee
+          {...selectedDictee}
+          onClose={() => setSelectedDictee(null)}
+          onPlan={() => setSelectedDictee(null)}
+        />
+      )}
 
       <div className="grid grid-cols-4 gap-4">
         <StatCard
@@ -114,7 +153,7 @@ export default function Library() {
             key={dictee.title}
             {...dictee}
             onPlan={() => {}}
-            onView={() => {}}
+            onView={() => setSelectedDictee(dictee)}
           />
         ))}
       </div>
