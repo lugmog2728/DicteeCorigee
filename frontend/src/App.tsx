@@ -5,6 +5,7 @@ import Library from './pages/Library/index'
 import Planning from './pages/Planning/index'
 import Classes from './pages/Classes/index'
 import Statistics from './pages/Statistics/index'
+import Correction from './pages/Correction'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/planification" element={<Planning />} />
           <Route path="/classes" element={<Classes />} />
           <Route path="/statistiques" element={<Statistics />} />
+          <Route path="/correction" element={<Correction />} />
         </Routes>
       </Layout>
     </BrowserRouter>
