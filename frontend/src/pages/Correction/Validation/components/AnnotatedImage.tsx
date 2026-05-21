@@ -62,7 +62,7 @@ export default function AnnotatedImage({ previewUrl, errors, currentError, valid
     const bh = currentError.h * scale
 
     // CSS variables aren't supported in canvas — resolve to actual color value
-    let resolvedColor = cat.color
+    let resolvedColor: string = cat.color
     if (resolvedColor.startsWith('var(')) {
       const varName = resolvedColor.slice(4, -1).trim()
       resolvedColor = getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '#666'

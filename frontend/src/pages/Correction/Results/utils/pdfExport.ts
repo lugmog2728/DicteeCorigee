@@ -1,6 +1,6 @@
 import { CATEGORIES } from '../../constants'
 import type { CategoryKey } from '../../constants'
-import type { DicteeApi } from '../../../../../api/dictees'
+import type { DicteeApi } from '../../../../api/dictees'
 
 export interface ExportParams {
   dictee: DicteeApi
