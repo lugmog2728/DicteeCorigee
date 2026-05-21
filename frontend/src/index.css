@@ -88,6 +88,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.logo-gradient {
+  background: linear-gradient(135deg, #FFD6F3 0%, #E91E8C 100%);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
