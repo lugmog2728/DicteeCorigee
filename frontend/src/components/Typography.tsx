@@ -1,4 +1,4 @@
-import { ReactNode, ElementType } from 'react'
+import type { ReactNode, ElementType } from 'react'
 
 export type TypographyVariant = 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'xs' | 'subtitle'
 
