@@ -59,12 +59,12 @@ export default function Upload() {
           <ChevronLeft size={16} />
           Annuler
         </button>
-        <h1 className="text-[24px] font-semibold text-[#101828] leading-[32px]">Corriger une Dictée</h1>
+        <h1 className="text-[20px] sm:text-[24px] font-semibold text-[#101828] leading-8">Corriger une Dictée</h1>
         <Stepper activeStep={0} />
       </div>
 
-      <div className="flex gap-6 items-start">
-        <div className="flex-1 min-w-0">
+      <div className="flex flex-col md:flex-row gap-6 items-start">
+        <div className="flex-1 min-w-0 w-full">
           <DropZone
             previewUrl={previewUrl}
             isDragging={isDragging}
@@ -74,7 +74,7 @@ export default function Upload() {
             onDragLeave={onDragLeave}
           />
         </div>
-        <div className="w-[266px] shrink-0">
+        <div className="w-full md:w-66.5 md:shrink-0">
           <DicteeSelector
             dictees={dictees}
             selectedDicteeId={selectedDicteeId}

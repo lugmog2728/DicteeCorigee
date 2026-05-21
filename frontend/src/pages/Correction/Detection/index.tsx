@@ -48,16 +48,16 @@ export default function Detection() {
           Annuler
         </button>
         <div className="flex flex-col gap-1">
-          <h1 className="text-[24px] font-semibold text-[#101828] leading-[32px]">Corriger une Dictée</h1>
-          <div className="flex items-center gap-2 text-[16px] font-medium text-[#4a5565]">
+          <h1 className="text-[20px] sm:text-[24px] font-semibold text-[#101828] leading-8">Corriger une Dictée</h1>
+          <div className="flex items-center gap-2 text-[15px] sm:text-[16px] font-medium text-[#4a5565]">
             <FileText size={16} />
-            <span>{dictee.titre}</span>
+            <span className="truncate">{dictee.titre}</span>
           </div>
         </div>
         <Stepper activeStep={1} />
       </div>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col md:flex-row gap-6 items-start">
         <AnnotatedImage previewUrl={previewUrl} detectionResult={detectionResult} />
         <DetectionSummary
           counts={counts}

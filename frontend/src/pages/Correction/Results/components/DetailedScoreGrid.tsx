@@ -16,7 +16,7 @@ export default function DetailedScoreGrid({ counts, dictee, onPrint, onSavePdf }
 
   return (
     <div id="score-grid" className="bg-white border border-[rgba(0,0,0,0.1)] rounded-[14px] p-6 flex flex-col gap-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
         <p className="text-[16px] font-semibold text-[#101828]">Score Détaillé par Type d'Erreur</p>
         <div className="flex items-center gap-3">
           <button
@@ -37,7 +37,7 @@ export default function DetailedScoreGrid({ counts, dictee, onPrint, onSavePdf }
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {CATEGORIES.filter(cat => cat.key !== 'nonPresent' && cat.key !== 'son').map(cat => {
           const count = counts[cat.key] ?? 0
           const isNeutralized = cat.key !== 'orthographe' && (dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0) === 0

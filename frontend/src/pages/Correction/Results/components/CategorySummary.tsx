@@ -9,7 +9,7 @@ interface Props {
 
 export default function CategorySummary({ counts, dictee }: Props) {
   return (
-    <div className="flex-1 min-w-0 bg-white border border-[rgba(0,0,0,0.1)] rounded-[14px] p-5 flex flex-col gap-3 max-h-[320px] overflow-y-auto">
+    <div className="flex-1 min-w-0 w-full bg-white border border-[rgba(0,0,0,0.1)] rounded-[14px] p-5 flex flex-col gap-3 md:max-h-80 md:overflow-y-auto">
       <p className="text-[14px] font-semibold text-[#101828] shrink-0">Résumé par Catégorie</p>
       <div className="flex flex-col gap-2">
         {CATEGORIES.map(cat => {

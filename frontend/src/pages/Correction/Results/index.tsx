@@ -61,8 +61,8 @@ export default function Results() {
           Retour aux dictées
         </button>
         <div className="flex flex-col gap-1">
-          <h1 className="text-[24px] font-semibold text-[#101828] leading-[32px]">Résultats de la Dictée</h1>
-          <div className="flex items-center gap-4 flex-wrap">
+          <h1 className="text-[20px] sm:text-[24px] font-semibold text-[#101828] leading-8">Résultats de la Dictée</h1>
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1.5 text-[14px] text-[#4a5565]">
               <FileText size={14} />
               <span>{dictee.titre}</span>
@@ -81,7 +81,7 @@ export default function Results() {
         </div>
       </div>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col md:flex-row gap-6 items-start">
         <ScoreGlobal
           score={score}
           totalErrors={totalErrors}

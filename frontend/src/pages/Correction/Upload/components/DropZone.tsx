@@ -49,7 +49,7 @@ export default function DropZone({ previewUrl, isDragging, onFile, onRemove, onD
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           onClick={() => fileInputRef.current?.click()}
-          className={`border-[1.6px] border-dashed rounded-[10px] flex flex-col items-center justify-center gap-3 py-14 cursor-pointer transition-colors ${isDragging ? 'border-[var(--ocean-blue-500)] bg-[rgba(0,145,173,0.04)]' : 'border-[#d1d5dc] hover:border-[var(--ocean-blue-500)] hover:bg-[rgba(0,145,173,0.02)]'}`}
+          className={`border-[1.6px] border-dashed rounded-[10px] flex flex-col items-center justify-center gap-3 py-8 sm:py-14 cursor-pointer transition-colors ${isDragging ? 'border-(--ocean-blue-500) bg-[rgba(0,145,173,0.04)]' : 'border-[#d1d5dc] hover:border-(--ocean-blue-500) hover:bg-[rgba(0,145,173,0.02)]'}`}
         >
           <Upload size={48} className="text-[#99a1af]" />
           <p className="text-[16px] text-[#4a5565] text-center max-w-[340px]">
