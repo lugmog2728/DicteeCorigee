@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 export type ButtonVariant = 'primary' | 'outline' | 'secondary' | 'ghost' | 'destructive' | 'link'
 
