@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, BookOpen, Calendar, Users, ChartColumn } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Calendar, Users, ChartColumn, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 interface MenuItem {
@@ -16,17 +16,27 @@ const menuItems: MenuItem[] = [
   { path: '/statistiques', label: 'Statistiques', icon: ChartColumn },
 ]
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   return (
-    <aside className="w-64 bg-white border-r border-[#e5e7eb] flex flex-col fixed h-screen left-0 top-0">
-      <div className="h-16 px-6 border-b border-[#e5e7eb] flex items-center gap-2 shrink-0">
-        <div
-          className="w-8 h-8 rounded-[10px] flex items-center justify-center font-bold text-sm text-white shrink-0"
-          style={{ background: 'linear-gradient(135deg, #FFD6F3 0%, #E91E8C 100%)' }}
-        >
+    <aside className={`w-64 bg-white border-r border-[#e5e7eb] flex flex-col fixed h-screen left-0 top-0 z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className="h-14 lg:h-16 px-4 lg:px-6 border-b border-[#e5e7eb] flex items-center gap-2 shrink-0">
+        <div className="logo-gradient w-8 h-8 rounded-[10px] flex items-center justify-center font-bold text-sm text-white shrink-0">
           DC
         </div>
-        <span className="text-xl font-medium text-[#101828]">DictéeCorrige</span>
+        <span className="text-xl font-medium text-[#101828] flex-1">DictéeCorrige</span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Fermer le menu"
+          className="lg:hidden size-8 flex items-center justify-center rounded-lg text-[#6a7282] hover:bg-[#f5f5f5] transition-colors"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       <nav className="flex-1 py-4 px-3 overflow-y-auto flex flex-col gap-1">
@@ -35,10 +45,11 @@ export default function Sidebar() {
             key={item.path}
             to={item.path}
             end={item.path === '/'}
+            onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-3 h-9 px-3 rounded-[10px] no-underline text-sm font-medium transition-colors duration-150 ${
                 isActive
-                  ? 'text-black bg-[var(--electric-pink-50)]'
+                  ? 'text-black bg-(--electric-pink-50)'
                   : 'text-[#364153] hover:bg-[#f5f5f5]'
               }`
             }
