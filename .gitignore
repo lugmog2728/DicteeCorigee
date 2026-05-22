@@ -11,6 +11,11 @@ node_modules/
 # Build
 frontend/dist/
 
+# Env
+frontend/.env.production
+frontend/.env.local
+frontend/.env*.local
+
 # OS
 .DS_Store
 Thumbs.db
