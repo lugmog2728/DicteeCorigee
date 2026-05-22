@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
+from app.api.routes.auth import router as auth_router
 from app.api.routes.dictees import router as dictees_router
 from app.api.routes.detection import router as detection_router
 import app.models  # noqa: F401 — ensure models are registered
@@ -29,6 +30,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(dictees_router)
 app.include_router(detection_router)
 
