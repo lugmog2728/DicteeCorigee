@@ -48,7 +48,7 @@ export default function DicteeSelector({ dictees, selectedDicteeId, studentName,
         </div>
         {selectedDictee && (
           <div className="flex items-center gap-2 mt-1">
-            {[selectedDictee.niveau, `${selectedDictee.duree} min`].map(info => (
+            {[selectedDictee.niveau, selectedDictee.periode, selectedDictee.temps].filter(Boolean).map(info => (
               <span key={info} className="text-[12px] text-[#6a7282]">• {info}</span>
             ))}
           </div>
