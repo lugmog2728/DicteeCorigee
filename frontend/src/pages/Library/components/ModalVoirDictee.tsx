@@ -1,4 +1,4 @@
-import { X, AlignLeft, Clock } from 'lucide-react'
+import { X, AlignLeft } from 'lucide-react'
 import Badge from '../../../components/Badge'
 import Button from '../../../components/Button'
 import type { BadgeVariant } from '../../../components/Badge'
@@ -11,10 +11,8 @@ interface DicteeBadge {
 
 interface ModalVoirDicteeProps {
   title: string
-  description: string
   texte: string
   wordCount: number
-  duration: number
   badges: DicteeBadge[]
   errors: ErrorCounts
   onClose: () => void
@@ -34,13 +32,13 @@ const errorCategories: { key: keyof ErrorCounts; letter: string; label: string; 
 ]
 
 export default function ModalVoirDictee({
-  title, description, texte, wordCount, duration, badges, errors, onClose, onPlan,
+  title, texte, wordCount, badges, errors, onClose, onPlan,
 }: ModalVoirDicteeProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      <div className="relative bg-white border border-[rgba(0,0,0,0.1)] rounded-[10px] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] w-[495px] max-h-[90vh] overflow-y-auto p-6">
+      <div className="relative bg-white border border-[rgba(0,0,0,0.1)] rounded-t-[20px] sm:rounded-[10px] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] w-full sm:w-[495px] max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto p-6">
 
         {/* Header */}
         <div className="flex items-start justify-between mb-2.5">
@@ -52,7 +50,7 @@ export default function ModalVoirDictee({
 
         <div className="flex flex-col gap-4 pt-2.5">
 
-          {/* Badges */}
+          {/* Badges : niveau, période, temps, tag */}
           <div className="flex flex-wrap gap-1.5">
             {badges.map(b => (
               <Badge key={b.label} label={b.label} variant={b.variant} />
@@ -65,21 +63,7 @@ export default function ModalVoirDictee({
               <AlignLeft size={16} />
               <span>{wordCount} mots</span>
             </div>
-            <div className="flex items-center gap-1 text-[14px] text-[#4a5565]">
-              <Clock size={16} />
-              <span>{duration} minutes</span>
-            </div>
           </div>
-
-          {/* Description */}
-          {description && (
-            <div className="bg-[#eff6ff] border border-[#bedbff] rounded-[10px] px-[12.8px] pt-[12.8px] pb-2">
-              <p className="text-[14px] leading-[20px] text-[#1c398e]">
-                <strong>Description :</strong>{' '}
-                <span className="font-normal">{description}</span>
-              </p>
-            </div>
-          )}
 
           {/* Texte de la dictée */}
           <div className="flex flex-col gap-2">

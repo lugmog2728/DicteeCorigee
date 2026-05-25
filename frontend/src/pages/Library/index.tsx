@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
 import Typography from '../../components/Typography'
-import StatCard from '../../components/StatCard'
 import CardDictee from './components/CardDictee'
 import LibraryFilters from './components/LibraryFilters'
 import ModalNouvelleDictee from './components/ModalNouvelleDictee'
 import ModalVoirDictee from './components/ModalVoirDictee'
 import Button from '../../components/Button'
-import { BookOpen, CheckCircle, Clock, Plus, Users } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { getDictees, createDictee } from '../../api/dictees'
 import type { DicteeApi, DicteeCreate } from '../../api/dictees'
 import type { BadgeVariant } from '../../components/Badge'
@@ -14,8 +13,9 @@ import type { BadgeVariant } from '../../components/Badge'
 function getDicteeBadges(dictee: DicteeApi): { label: string; variant: BadgeVariant }[] {
   const badges: { label: string; variant: BadgeVariant }[] = []
   badges.push({ label: dictee.niveau, variant: 'ocean' })
-  badges.push({ label: dictee.periode, variant: dictee.periode === 'Passé' ? 'sand' : 'aqua' })
-  if (dictee.tag) badges.push({ label: dictee.tag, variant: 'purple' })
+  badges.push({ label: dictee.periode, variant: 'sand' })
+  if (dictee.temps) badges.push({ label: dictee.temps, variant: 'aqua' })
+  if (dictee.tag)   badges.push({ label: dictee.tag,   variant: 'purple' })
   return badges
 }
 
@@ -57,7 +57,7 @@ export default function Library() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Typography variant="h1">Bibliothèque</Typography>
           <Typography variant="subtitle">Gérez vos textes de dictées et planifiez-les pour vos classes</Typography>
@@ -80,51 +80,14 @@ export default function Library() {
       {selectedDictee && (
         <ModalVoirDictee
           title={selectedDictee.titre}
-          description={selectedDictee.description ?? ''}
           texte={selectedDictee.texte}
           wordCount={countWords(selectedDictee.texte)}
-          duration={selectedDictee.duree}
           badges={getDicteeBadges(selectedDictee)}
           errors={selectedDictee.errors}
           onClose={() => setSelectedDictee(null)}
           onPlan={() => setSelectedDictee(null)}
         />
       )}
-
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard
-          title="Total dictées"
-          value={dictees.length}
-          subtitle="Textes disponibles"
-          icon={BookOpen}
-          iconBg="var(--aqua-mist-100)"
-          iconColor="var(--aqua-mist-700)"
-        />
-        <StatCard
-          title="Publiées"
-          value={dictees.length}
-          subtitle="Accessibles aux classes"
-          icon={CheckCircle}
-          iconBg="var(--soft-blush-500)"
-          iconColor="var(--sunlight-sand-900)"
-        />
-        <StatCard
-          title="En attente"
-          value={0}
-          subtitle="Brouillons non publiés"
-          icon={Clock}
-          iconBg="var(--sunlight-sand-100)"
-          iconColor="var(--sunlight-sand-900)"
-        />
-        <StatCard
-          title="Classes assignées"
-          value={3}
-          subtitle="Utilisant la bibliothèque"
-          icon={Users}
-          iconBg="var(--electric-pink-100)"
-          iconColor="var(--electric-pink-700)"
-        />
-      </div>
 
       <LibraryFilters
         search={search}
@@ -138,15 +101,13 @@ export default function Library() {
       {loading ? (
         <p className="text-sm text-(--text)">Chargement...</p>
       ) : (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map((dictee) => (
             <CardDictee
               key={dictee.id}
               title={dictee.titre}
-              description={dictee.description ?? ''}
               badges={getDicteeBadges(dictee)}
               wordCount={countWords(dictee.texte)}
-              duration={dictee.duree}
               onPlan={() => {}}
               onView={() => setSelectedDictee(dictee)}
             />

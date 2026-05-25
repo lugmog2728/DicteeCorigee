@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
-from app.models.dictee import NiveauEnum, PeriodeEnum
+from app.models.dictee import NiveauEnum, PeriodeEnum, TempsEnum
 
 
 class ErrorCounts(BaseModel):
@@ -18,39 +18,36 @@ class ErrorCounts(BaseModel):
 
 
 class DicteeCreate(BaseModel):
-    titre:       str
-    niveau:      NiveauEnum
-    periode:     PeriodeEnum
-    tag:         str | None = None
-    duree:       int = 15
-    description: str | None = None
-    texte:       str
-    errors:      ErrorCounts = Field(default_factory=ErrorCounts)
+    titre:   str
+    niveau:  NiveauEnum
+    periode: PeriodeEnum
+    temps:   TempsEnum
+    tag:     str | None = None
+    texte:   str
+    errors:  ErrorCounts = Field(default_factory=ErrorCounts)
 
 
 class DicteeUpdate(BaseModel):
-    titre:       str | None = None
-    niveau:      NiveauEnum | None = None
-    periode:     PeriodeEnum | None = None
-    tag:         str | None = None
-    duree:       int | None = None
-    description: str | None = None
-    texte:       str | None = None
-    errors:      ErrorCounts | None = None
+    titre:   str | None = None
+    niveau:  NiveauEnum | None = None
+    periode: PeriodeEnum | None = None
+    temps:   TempsEnum | None = None
+    tag:     str | None = None
+    texte:   str | None = None
+    errors:  ErrorCounts | None = None
 
 
 class DicteeRead(BaseModel):
-    id:          int
-    titre:       str
-    niveau:      NiveauEnum
-    periode:     PeriodeEnum
-    tag:         str | None
-    duree:       int
-    description: str | None
-    texte:       str
-    errors:      ErrorCounts
-    created_at:  datetime
-    updated_at:  datetime
+    id:         int
+    titre:      str
+    niveau:     NiveauEnum
+    periode:    str
+    temps:      str | None
+    tag:        str | None
+    texte:      str
+    errors:     ErrorCounts
+    created_at: datetime
+    updated_at: datetime
 
     model_config = {"from_attributes": True}
 
@@ -72,9 +69,8 @@ class DicteeRead(BaseModel):
             titre=obj.titre,
             niveau=obj.niveau,
             periode=obj.periode,
+            temps=obj.temps,
             tag=obj.tag,
-            duree=obj.duree,
-            description=obj.description,
             texte=obj.texte,
             errors=errors,
             created_at=obj.created_at,
