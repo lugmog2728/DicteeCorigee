@@ -7,6 +7,8 @@ from app.database import engine, Base
 from app.api.routes.auth import router as auth_router
 from app.api.routes.dictees import router as dictees_router
 from app.api.routes.detection import router as detection_router
+from app.api.routes.classes import router as classes_router
+from app.api.routes.eleves import router as eleves_router
 import app.models  # noqa: F401 — ensure models are registered
 
 _extra = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
@@ -33,6 +35,8 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(dictees_router)
 app.include_router(detection_router)
+app.include_router(classes_router)
+app.include_router(eleves_router)
 
 
 @app.get("/")
