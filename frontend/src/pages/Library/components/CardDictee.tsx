@@ -1,4 +1,4 @@
-import { AlignLeft, Clock } from 'lucide-react'
+import { AlignLeft } from 'lucide-react'
 import Badge from '../../../components/Badge'
 import type { BadgeVariant } from '../../../components/Badge'
 
@@ -9,20 +9,16 @@ interface DicteeBadge {
 
 interface CardDicteeProps {
   title: string
-  description: string
   badges: DicteeBadge[]
   wordCount: number
-  duration: number
   onPlan?: () => void
   onView?: () => void
 }
 
 export default function CardDictee({
   title,
-  description,
   badges,
   wordCount,
-  duration,
   onPlan,
   onView,
 }: CardDicteeProps) {
@@ -38,29 +34,23 @@ export default function CardDictee({
       </div>
 
       <div className="flex flex-col gap-4 px-6 pt-4 pb-6">
-        <p className="text-sm text-[#4a5565] leading-5 line-clamp-2">{description}</p>
-
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1 text-xs text-[#6a7282]">
             <AlignLeft size={12} />
             <span>{wordCount} mots</span>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-[#6a7282]">
-            <Clock size={12} />
-            <span>{duration} min</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={onPlan}
-            className="h-8 px-4 rounded-lg bg-(--ocean-blue-500) text-white text-sm font-medium cursor-pointer border-0"
+            className="flex-1 sm:flex-none h-8 px-4 rounded-lg bg-(--ocean-blue-500) text-white text-sm font-medium cursor-pointer border-0"
           >
             Planifier
           </button>
           <button
             onClick={onView}
-            className="h-8 px-4 rounded-lg bg-white border border-black/10 text-[#0a0a0a] text-sm font-medium cursor-pointer"
+            className="flex-1 sm:flex-none h-8 px-4 rounded-lg bg-white border border-black/10 text-[#0a0a0a] text-sm font-medium cursor-pointer"
           >
             Voir
           </button>
