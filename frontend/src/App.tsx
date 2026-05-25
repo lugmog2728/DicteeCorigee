@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard/index'
 import Library from './pages/Library/index'
 import Planning from './pages/Planning/index'
 import Classes from './pages/Classes/index'
+import ClasseDetail from './pages/Classes/ClasseDetail/index'
 import Statistics from './pages/Statistics/index'
 import Correction from './pages/Correction/Upload'
 import Detection from './pages/Correction/Detection'
@@ -29,6 +30,7 @@ function App() {
                     <Route path="/bibliotheque" element={<Library />} />
                     <Route path="/planification" element={<Planning />} />
                     <Route path="/classes" element={<Classes />} />
+                    <Route path="/classes/:classeId" element={<ClasseDetail />} />
                     <Route path="/statistiques" element={<Statistics />} />
                     <Route path="/correction" element={<Correction />} />
                     <Route path="/correction/detection" element={<Detection />} />
