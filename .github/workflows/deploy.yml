@@ -73,6 +73,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: docker-compose.yml
           target: /var/www/dicteecorigee
+          overwrite: true
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
