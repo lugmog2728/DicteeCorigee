@@ -21,8 +21,6 @@ export default function ModalNouvelleClasse({ onClose, onSubmit }: ModalNouvelle
     onClose()
   }
 
-  const canSubmit = nom.trim() && niveau
-
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
