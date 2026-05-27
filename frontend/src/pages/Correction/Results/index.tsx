@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ChevronLeft, FileText, Calendar, User } from 'lucide-react'
 import { CATEGORIES } from '../constants'
 import type { CategoryKey, ErrorItem, CorrectionState } from '../constants'
+import { createCorrection } from '../../../api/corrections'
 import ScoreGlobal from './components/ScoreGlobal'
 import CategorySummary from './components/CategorySummary'
 import DetailedScoreGrid from './components/DetailedScoreGrid'
@@ -23,10 +24,6 @@ export default function Results() {
   const location = useLocation()
   const state = location.state as LocationState | null
 
-  useEffect(() => {
-    if (!state) navigate('/correction', { replace: true })
-  }, [state, navigate])
-
   const { counts, totalErrors, score, neutralizedCount, typesEvaluated } = useMemo(() => {
     if (!state) return { counts: {} as Record<CategoryKey, number>, totalErrors: 0, score: 0, neutralizedCount: 0, typesEvaluated: 0 }
 
@@ -45,8 +42,36 @@ export default function Results() {
     return { counts: c, totalErrors: total, score: sc, neutralizedCount: neutralized, typesEvaluated: CATEGORIES.length - neutralized }
   }, [state])
 
+  const saved = useRef(false)
+
+  useEffect(() => {
+    if (!state) { navigate('/correction', { replace: true }) }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!state || saved.current) return
+    saved.current = true
+
+    async function save() {
+      let image: Blob | undefined
+      try { image = await fetch(state!.previewUrl).then(r => r.blob()) } catch { /* no image */ }
+
+      await createCorrection({
+        dictee_id:        state!.dictee.id,
+        score,
+        nb_errors:        totalErrors,
+        student_name:     state!.studentName ?? '',
+        counts,
+        planification_id: state!.planif?.id,
+        eleve_id:         state!.planif?.eleve_id,
+        image,
+      })
+    }
+    save().catch(console.error)
+  }, [score, totalErrors]) // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!state) return null
-  const { dictee, studentName } = state
+  const { dictee, studentName, planif } = state
   const overallPerf = getOverallPerf(score)
   const today = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
   return (
@@ -54,11 +79,11 @@ export default function Results() {
       <div className="flex flex-col gap-4">
         <button
           type="button"
-          onClick={() => navigate('/bibliotheque')}
+          onClick={() => navigate(planif ? '/planification' : '/bibliotheque')}
           className="flex items-center gap-1.5 text-[14px] text-[#6a7282] hover:text-[#0a0a0a] transition-colors w-fit"
         >
           <ChevronLeft size={16} />
-          Retour aux dictées
+          {planif ? 'Retour à la Planification' : 'Retour aux dictées'}
         </button>
         <div className="flex flex-col gap-1">
           <h1 className="text-[20px] sm:text-[24px] font-semibold text-[#101828] leading-8">Résultats de la Dictée</h1>
