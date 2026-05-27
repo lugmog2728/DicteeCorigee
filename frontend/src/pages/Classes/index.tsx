@@ -75,6 +75,7 @@ export default function Classes() {
               niveau={cls.niveau}
               annee={cls.annee_scolaire}
               nbEleves={cls.nb_eleves}
+              moyenne={cls.moyenne}
               colorVariant={COLORS[i % COLORS.length]}
               onClick={() => navigate(`/classes/${cls.id}`)}
             />

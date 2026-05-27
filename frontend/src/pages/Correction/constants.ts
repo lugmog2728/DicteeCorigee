@@ -59,9 +59,17 @@ export function getConfidenceStyle(confidence: number) {
 import type { DicteeApi } from '../../api/dictees'
 import type { DetectionResult } from '../../api/detection'
 
+export interface CorrectionPlanif {
+  id:          number
+  classe_id:   number
+  nb_corriges: number
+  eleve_id?:   number
+}
+
 export interface CorrectionState {
-  previewUrl: string
-  dictee: DicteeApi
+  previewUrl:  string
+  dictee:      DicteeApi
   detectionResult: DetectionResult
   studentName: string
+  planif?:     CorrectionPlanif
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Typography from '../../components/Typography'
 import CardDictee from './components/CardDictee'
 import LibraryFilters from './components/LibraryFilters'
@@ -24,6 +25,7 @@ function countWords(texte: string): number {
 }
 
 export default function Library() {
+  const navigate = useNavigate()
   const [dictees, setDictees] = useState<DicteeApi[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -85,7 +87,7 @@ export default function Library() {
           badges={getDicteeBadges(selectedDictee)}
           errors={selectedDictee.errors}
           onClose={() => setSelectedDictee(null)}
-          onPlan={() => setSelectedDictee(null)}
+          onPlan={() => navigate('/planification/nouvelle', { state: { dicteeId: selectedDictee.id } })}
         />
       )}
 
@@ -108,7 +110,7 @@ export default function Library() {
               title={dictee.titre}
               badges={getDicteeBadges(dictee)}
               wordCount={countWords(dictee.texte)}
-              onPlan={() => {}}
+              onPlan={() => navigate('/planification/nouvelle', { state: { dicteeId: dictee.id } })}
               onView={() => setSelectedDictee(dictee)}
             />
           ))}
