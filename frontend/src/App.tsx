@@ -6,6 +6,7 @@ import Login from './pages/Login/index'
 import Dashboard from './pages/Dashboard/index'
 import Library from './pages/Library/index'
 import Planning from './pages/Planning/index'
+import NouvellePlanification from './pages/Planning/NouvellePlanification'
 import Classes from './pages/Classes/index'
 import ClasseDetail from './pages/Classes/ClasseDetail/index'
 import Statistics from './pages/Statistics/index'
@@ -29,6 +30,7 @@ function App() {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/bibliotheque" element={<Library />} />
                     <Route path="/planification" element={<Planning />} />
+                    <Route path="/planification/nouvelle" element={<NouvellePlanification />} />
                     <Route path="/classes" element={<Classes />} />
                     <Route path="/classes/:classeId" element={<ClasseDetail />} />
                     <Route path="/statistiques" element={<Statistics />} />
