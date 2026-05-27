@@ -23,6 +23,7 @@ class ClasseRead(BaseModel):
     niveau:         NiveauEnum
     annee_scolaire: str
     nb_eleves:      int
+    moyenne:        float | None = None
     created_at:     datetime
     updated_at:     datetime
 
