@@ -2,6 +2,88 @@ import { CATEGORIES } from '../../constants'
 import type { CategoryKey } from '../../constants'
 import type { DicteeApi } from '../../../../api/dictees'
 
+export interface ClasseStudentEntry {
+  studentName: string
+  score:       number
+  counts:      Record<CategoryKey, number>
+}
+
+export async function saveClassePdf({
+  students, dictee, classeNom, today,
+}: {
+  students:  ClasseStudentEntry[]
+  dictee:    DicteeApi
+  classeNom: string
+  today:     string
+}) {
+  const { jsPDF } = await import('jspdf')
+  // Catégories de la dictée + catégories où au moins un élève a fait une erreur
+  const activeCats = CATEGORIES.filter(cat => {
+    if (cat.key === 'nonPresent' || cat.key === 'son') return false
+    const inDictee   = (dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0) > 0
+    const inStudents = students.some(s => (s.counts[cat.key] ?? 0) > 0)
+    return inDictee || inStudents
+  })
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+  const pageW = pdf.internal.pageSize.getWidth()
+  const pageH = pdf.internal.pageSize.getHeight()
+  const margin = 20, gap = 8, cols = 4
+  const cardW = (pageW - 2 * margin - (cols - 1) * gap) / cols
+  const svgH  = cardW * 0.48
+  const labelH = 14
+  const cardH  = svgH + labelH + 4
+  const rows   = Math.ceil(activeCats.length / cols)
+  const studentH = 16 + rows * (cardH + gap) - gap  // hauteur d'un bloc élève
+
+  // En-tête de document (première page)
+  pdf.setFontSize(11); pdf.setFont('helvetica', 'bold'); pdf.setTextColor('#101828')
+  pdf.text(`${dictee.titre} · ${classeNom}`, margin, margin + 10)
+  pdf.setFontSize(8); pdf.setFont('helvetica', 'normal'); pdf.setTextColor('#6a7282')
+  pdf.text(today, pageW - margin, margin + 10, { align: 'right' })
+  pdf.setDrawColor('#e5e7eb'); pdf.setLineWidth(0.5)
+  pdf.line(margin, margin + 16, pageW - margin, margin + 16)
+
+  let y = margin + 24
+
+  for (const s of students) {
+    // Nouvelle page si le bloc ne tient pas
+    if (y + studentH > pageH - margin) {
+      pdf.addPage()
+      y = margin
+    }
+
+    // Nom + score
+    pdf.setFontSize(10); pdf.setFont('helvetica', 'bold'); pdf.setTextColor('#101828')
+    pdf.text(s.studentName || 'Élève inconnu', margin, y + 9)
+    const scoreColor = s.score >= 90 ? '#016630' : s.score >= 70 ? '#005768' : s.score >= 40 ? '#c9ae2e' : '#ab347b'
+    pdf.setFontSize(10); pdf.setTextColor(scoreColor)
+    pdf.text(`${s.score} %`, pageW - margin, y + 9, { align: 'right' })
+
+    const cardsY = y + 14
+
+    for (let i = 0; i < activeCats.length; i++) {
+      const cat = activeCats[i]
+      const col = i % cols
+      const row = Math.floor(i / cols)
+      const x    = margin + col * (cardW + gap)
+      const cardY = cardsY + row * (cardH + gap)
+      const count    = s.counts[cat.key] ?? 0
+      const expected = dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0
+      const done     = Math.max(0, expected - count)
+
+      pdf.setDrawColor('#e5e7eb'); pdf.setLineWidth(0.5)
+      pdf.roundedRect(x, cardY, cardW, cardH, 3, 3)
+      pdf.setFontSize(8); pdf.setFont('helvetica', 'bold'); pdf.setTextColor('#101828')
+      pdf.text(cat.label, x + cardW / 2, cardY + 9, { align: 'center' })
+      pdf.addImage(speedometerToDataUrl(done, expected), 'PNG', x + 2, cardY + labelH, cardW - 4, svgH)
+    }
+
+    y = cardsY + rows * (cardH + gap) - gap + 10  // 10pt entre élèves
+  }
+
+  pdf.save(`${classeNom} - ${dictee.titre} - Résultats.pdf`)
+}
+
 export interface ExportParams {
   dictee: DicteeApi
   studentName: string
@@ -109,13 +191,12 @@ export function speedometerToDataUrl(done: number, total: number): string {
 function getActiveCats(dictee: DicteeApi) {
   return CATEGORIES.filter(cat => {
     if (cat.key === 'nonPresent' || cat.key === 'son') return false
-    return cat.key === 'orthographe' || (dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0) > 0
+    return (dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0) > 0
   })
 }
 
 export async function savePdf({ dictee, studentName, counts, today }: ExportParams) {
   const { jsPDF } = await import('jspdf')
-  const wordCount = dictee.texte.split(/\s+/).filter(Boolean).length
   const activeCats = getActiveCats(dictee)
 
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' })
@@ -139,7 +220,7 @@ export async function savePdf({ dictee, studentName, counts, today }: ExportPara
     const col = i % cols
     const x = margin + col * (cardW + gap)
     const count = counts[cat.key] ?? 0
-    const expected = cat.key === 'orthographe' ? wordCount : (dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0)
+    const expected = dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0
     const done = Math.max(0, expected - count)
 
     pdf.setDrawColor('#e5e7eb'); pdf.setLineWidth(0.5)
@@ -157,15 +238,10 @@ export async function savePdf({ dictee, studentName, counts, today }: ExportPara
 }
 
 export function printResults({ dictee, studentName, counts, today }: ExportParams) {
-  const wordCount = dictee.texte.split(/\s+/).filter(Boolean).length
-  const activeCats = CATEGORIES.filter(cat => {
-    if (cat.key === 'nonPresent' || cat.key === 'son') return false
-    const isNeutralized = cat.key !== 'orthographe' && (dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0) === 0
-    return !isNeutralized
-  })
+  const activeCats = getActiveCats(dictee)
   const cards = activeCats.map(cat => {
     const count = counts[cat.key] ?? 0
-    const expected = cat.key === 'orthographe' ? wordCount : (dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0)
+    const expected = dictee.errors[cat.key as keyof typeof dictee.errors] ?? 0
     const done = Math.max(0, expected - count)
     return `<div class="card"><p class="label">${cat.label}</p>${speedometerSvg(done, expected)}</div>`
   }).join('')

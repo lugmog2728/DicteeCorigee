@@ -49,6 +49,12 @@ export async function getDictees(params?: { niveau?: string; periode?: string })
   return res.json()
 }
 
+export async function getDictee(id: number): Promise<DicteeApi> {
+  const res = await apiFetch(`/api/dictees/${id}`)
+  if (!res.ok) throw new Error('Dictée introuvable')
+  return res.json()
+}
+
 export async function createDictee(data: DicteeCreate): Promise<DicteeApi> {
   const res = await apiFetch('/api/dictees', {
     method: 'POST',
