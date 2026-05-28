@@ -18,7 +18,9 @@ export default function PlanningTableRow({ planif }: PlanningTableRowProps) {
 
   function handleAction() {
     if (planif.statut === 'terminee') {
-      navigate('/correction/results')
+      navigate(`/statistiques/planification/${planif.id}`, {
+        state: { titre: planif.dictee_titre, classe: planif.classe_nom },
+      })
     } else {
       navigate('/correction', {
         state: {
@@ -88,6 +90,7 @@ export default function PlanningTableRow({ planif }: PlanningTableRowProps) {
       {/* Actions */}
       <td className="px-6 py-3 w-[149px]">
         <button
+          type="button"
           onClick={handleAction}
           className={`w-full h-9 rounded-[8px] px-4 text-[14px] font-medium leading-5 transition-colors ${
             actionVariant === 'primary'

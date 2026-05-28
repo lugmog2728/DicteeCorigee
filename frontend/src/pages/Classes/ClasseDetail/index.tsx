@@ -62,6 +62,7 @@ function StatCard({ label, value, sub, iconBg, icon }: {
 }
 
 function EleveRow({ eleve }: { eleve: EleveStatItem }) {
+  const navigate = useNavigate()
   return (
     <tr className="border-b border-[#f3f4f6] last:border-0 hover:bg-[#fafafa]">
       <td className="px-4 py-4">
@@ -86,7 +87,11 @@ function EleveRow({ eleve }: { eleve: EleveStatItem }) {
       <td className="px-4 py-4 text-[14px] text-[#4a5565]">{eleve.total_corrections}</td>
       <td className="px-4 py-4 text-[14px] text-[#4a5565]">{formatRelativeDate(eleve.derniere_date)}</td>
       <td className="px-4 py-4">
-        <button type="button" className="flex items-center gap-1 text-[14px] font-medium text-[#0a0a0a] hover:text-[#0091ad]">
+        <button
+          type="button"
+          onClick={() => navigate(`/statistiques/eleve/${eleve.id}`, { state: { nom: `${eleve.prenom} ${eleve.initiale}.` } })}
+          className="flex items-center gap-1 text-[14px] font-medium text-[#0a0a0a] hover:text-[#0091ad]"
+        >
           <Eye size={16} />
           Voir
         </button>
@@ -146,7 +151,11 @@ export default function ClasseDetail() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2 sm:items-center">
-          <button type="button" className="border border-[rgba(0,0,0,0.1)] rounded-lg px-4 py-2 text-[14px] font-medium text-[#0a0a0a] bg-white hover:bg-[#f3f4f6] flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate(`/statistiques/classe/${classe.id}`, { state: { nom: classe.nom } })}
+            className="border border-[rgba(0,0,0,0.1)] rounded-lg px-4 py-2 text-[14px] font-medium text-[#0a0a0a] bg-white hover:bg-[#f3f4f6] flex items-center gap-2"
+          >
             <BarChart2 size={16} />
             Voir les stat
           </button>
@@ -204,7 +213,7 @@ export default function ClasseDetail() {
       {/* Students table */}
       <div className="bg-white border border-[rgba(0,0,0,0.1)] rounded-[14px] overflow-hidden">
         <div className="px-6 py-5">
-          <h2 className="text-[18px] font-medium text-black">Dictées planifiées</h2>
+          <h2 className="text-[18px] font-medium text-black">Résultats des élèves</h2>
         </div>
         {stats.eleves.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">

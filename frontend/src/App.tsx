@@ -10,6 +10,9 @@ import NouvellePlanification from './pages/Planning/NouvellePlanification'
 import Classes from './pages/Classes/index'
 import ClasseDetail from './pages/Classes/ClasseDetail/index'
 import Statistics from './pages/Statistics/index'
+import ClasseStats from './pages/Statistics/ClasseStats'
+import EleveStats from './pages/Statistics/EleveStats'
+import PlanificationStats from './pages/Statistics/PlanificationStats'
 import Correction from './pages/Correction/Upload'
 import Detection from './pages/Correction/Detection'
 import Validation from './pages/Correction/Validation'
@@ -34,6 +37,9 @@ function App() {
                     <Route path="/classes" element={<Classes />} />
                     <Route path="/classes/:classeId" element={<ClasseDetail />} />
                     <Route path="/statistiques" element={<Statistics />} />
+                    <Route path="/statistiques/classe/:classeId" element={<ClasseStats />} />
+                    <Route path="/statistiques/eleve/:eleveId" element={<EleveStats />} />
+                    <Route path="/statistiques/planification/:planifId" element={<PlanificationStats />} />
                     <Route path="/correction" element={<Correction />} />
                     <Route path="/correction/detection" element={<Detection />} />
                     <Route path="/correction/validation" element={<Validation />} />
