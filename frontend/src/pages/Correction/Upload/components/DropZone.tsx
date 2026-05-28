@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react'
-import { X, Upload, Camera, FolderOpen } from 'lucide-react'
+import { X, Upload, Camera, FolderOpen, Lightbulb } from 'lucide-react'
 import Button from '../../../../components/Button'
 
 const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
@@ -67,6 +67,13 @@ export default function DropZone({ previewUrl, isDragging, onFile, onRemove, onD
           )}
         </div>
       )}
+
+      <div className="flex items-start gap-2.5 mt-4 p-3 rounded-[10px] bg-[#fffbeb] border border-[#fde68a]">
+        <Lightbulb size={14} className="text-[#d97706] shrink-0 mt-0.5" />
+        <p className="text-[12px] text-[#92400e] leading-relaxed">
+          Pour de meilleurs résultats, photographiez la copie à plat, dans un endroit bien éclairé, sans reflets ni ombres sur le texte.
+        </p>
+      </div>
 
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onFileChange} />
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={onFileChange} />
