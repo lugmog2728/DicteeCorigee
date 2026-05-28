@@ -17,6 +17,7 @@ interface ModalVoirDicteeProps {
   errors: ErrorCounts
   onClose: () => void
   onPlan?: () => void
+  onEdit?: () => void
 }
 
 const errorCategories: { key: keyof ErrorCounts; letter: string; label: string; border: string }[] = [
@@ -32,7 +33,7 @@ const errorCategories: { key: keyof ErrorCounts; letter: string; label: string; 
 ]
 
 export default function ModalVoirDictee({
-  title, texte, wordCount, badges, errors, onClose, onPlan,
+  title, texte, wordCount, badges, errors, onClose, onPlan, onEdit,
 }: ModalVoirDicteeProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
@@ -96,8 +97,13 @@ export default function ModalVoirDictee({
           </div>
 
           {/* Footer */}
-          <div className="border-t border-[rgba(0,0,0,0.1)] pt-4 flex justify-end">
-            <Button label="Planifier cette Dictée" variant="primary" onClick={onPlan} />
+          <div className="border-t border-[rgba(0,0,0,0.1)] pt-4 flex items-center justify-between">
+            {onEdit && (
+              <Button label="Éditer" variant="outline" onClick={onEdit} />
+            )}
+            <div className="ml-auto">
+              <Button label="Planifier cette Dictée" variant="primary" onClick={onPlan} />
+            </div>
           </div>
 
         </div>

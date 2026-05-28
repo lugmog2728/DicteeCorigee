@@ -58,6 +58,15 @@ export async function createDictee(data: DicteeCreate): Promise<DicteeApi> {
   return res.json()
 }
 
+export async function updateDictee(id: number, data: DicteeCreate): Promise<DicteeApi> {
+  const res = await apiFetch(`/api/dictees/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error('Erreur lors de la mise à jour de la dictée')
+  return res.json()
+}
+
 export async function deleteDictee(id: number): Promise<void> {
   const res = await apiFetch(`/api/dictees/${id}`, { method: 'DELETE' })
   if (!res.ok) throw new Error('Erreur lors de la suppression')

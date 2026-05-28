@@ -5,9 +5,10 @@ import CardDictee from './components/CardDictee'
 import LibraryFilters from './components/LibraryFilters'
 import ModalNouvelleDictee from './components/ModalNouvelleDictee'
 import ModalVoirDictee from './components/ModalVoirDictee'
+import ModalEditerDictee from './components/ModalEditerDictee'
 import Button from '../../components/Button'
 import { Plus } from 'lucide-react'
-import { getDictees, createDictee } from '../../api/dictees'
+import { getDictees, createDictee, updateDictee } from '../../api/dictees'
 import type { DicteeApi, DicteeCreate } from '../../api/dictees'
 import type { BadgeVariant } from '../../components/Badge'
 
@@ -33,6 +34,7 @@ export default function Library() {
   const [period, setPeriod] = useState('Toutes périodes')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedDictee, setSelectedDictee] = useState<DicteeApi | null>(null)
+  const [dicteeToEdit, setDicteeToEdit] = useState<DicteeApi | null>(null)
 
   async function fetchDictees() {
     try {
@@ -50,6 +52,12 @@ export default function Library() {
 
   async function handleCreate(data: DicteeCreate) {
     await createDictee(data)
+    await fetchDictees()
+  }
+
+  async function handleUpdate(data: DicteeCreate) {
+    if (!dicteeToEdit) return
+    await updateDictee(dicteeToEdit.id, data)
     await fetchDictees()
   }
 
@@ -88,6 +96,15 @@ export default function Library() {
           errors={selectedDictee.errors}
           onClose={() => setSelectedDictee(null)}
           onPlan={() => navigate('/planification/nouvelle', { state: { dicteeId: selectedDictee.id } })}
+          onEdit={() => { setDicteeToEdit(selectedDictee); setSelectedDictee(null) }}
+        />
+      )}
+
+      {dicteeToEdit && (
+        <ModalEditerDictee
+          dictee={dicteeToEdit}
+          onClose={() => setDicteeToEdit(null)}
+          onSave={handleUpdate}
         />
       )}
 
