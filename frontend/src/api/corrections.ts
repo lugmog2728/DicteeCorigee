@@ -24,6 +24,35 @@ export interface CorrectionCreate {
   image?:            Blob
 }
 
+export interface CorrectionRead {
+  id:               number
+  eleve_id:         number | null
+  planification_id: number | null
+  dictee_id:        number
+  student_name:     string
+  score:            number
+  nb_errors:        number
+  err_conjugaison:  number
+  err_homophone:    number
+  err_accord:       number
+  err_majuscule:    number
+  err_ponctuation:  number
+  err_infinitif:    number
+  err_orthographe:  number
+  err_non_present:  number
+  err_son:          number
+}
+
+export async function getCorrections(planificationId?: number): Promise<CorrectionRead[]> {
+  const qs = planificationId != null ? `?planification_id=${planificationId}` : ''
+  const token = getToken()
+  const res = await fetch(`${API_URL}/api/corrections${qs}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!res.ok) throw new Error('Erreur lors du chargement des corrections')
+  return res.json()
+}
+
 export async function createCorrection(data: CorrectionCreate): Promise<void> {
   const fd = new FormData()
   fd.append('dictee_id',    String(data.dictee_id))

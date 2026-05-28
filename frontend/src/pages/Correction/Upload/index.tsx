@@ -8,7 +8,7 @@ import { getDictees } from '../../../api/dictees'
 import type { DicteeApi } from '../../../api/dictees'
 import { getEleves } from '../../../api/eleves'
 import type { EleveApi } from '../../../api/eleves'
-import { detectImage } from '../../../api/detection'
+import { getCorrections } from '../../../api/corrections'
 
 interface PlanifRouteState {
   planifId:   number
@@ -21,7 +21,6 @@ export default function Upload() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Detect planif mode from navigation state
   const routeState = location.state as PlanifRouteState | null
   const planifMode = !!(routeState?.planifId)
 
@@ -30,20 +29,21 @@ export default function Upload() {
   const [imageFile, setImageFile]         = useState<File | null>(null)
   const [dictees, setDictees]             = useState<DicteeApi[]>([])
   const [eleves, setEleves]               = useState<EleveApi[]>([])
+  const [correctedEleveIds, setCorrectedEleveIds] = useState<Set<number>>(new Set())
   const [selectedDicteeId, setSelectedDicteeId] = useState<number | ''>(routeState?.dicteeId ?? '')
   const [selectedEleveId, setSelectedEleveId]   = useState<number | ''>('')
-  const [loading, setLoading]             = useState(false)
   const [studentName, setStudentName]     = useState('')
 
   useEffect(() => {
     if (planifMode) {
-      // In planif mode: fetch only the needed dictee + class eleves
       Promise.all([
         getDictees(),
         getEleves(routeState!.classeId),
-      ]).then(([d, e]) => {
+        getCorrections(routeState!.planifId),
+      ]).then(([d, e, corrections]) => {
         setDictees(d)
         setEleves(e)
+        setCorrectedEleveIds(new Set(corrections.map(c => c.eleve_id).filter((id): id is number => id != null)))
       }).catch(console.error)
     } else {
       getDictees().then(setDictees).catch(console.error)
@@ -61,30 +61,22 @@ export default function Upload() {
   const onDragOver  = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
   const onDragLeave = () => setIsDragging(false)
 
-  async function handleDetect() {
+  function handleNext() {
     if (!imageFile || !selectedDictee) return
-    setLoading(true)
-    try {
-      const detectionResult = await detectImage(imageFile)
-      navigate('/correction/detection', {
-        state: {
-          previewUrl,
-          dictee: selectedDictee,
-          detectionResult,
-          studentName,
-          planif: planifMode ? {
-            id:          routeState!.planifId,
-            classe_id:   routeState!.classeId,
-            nb_corriges: routeState!.nbCorriges,
-            eleve_id:    selectedEleveId ? Number(selectedEleveId) : undefined,
-          } : undefined,
-        },
-      })
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
+    navigate('/correction/couleur', {
+      state: {
+        imageFile,
+        previewUrl,
+        dictee: selectedDictee,
+        studentName,
+        planif: planifMode ? {
+          id:          routeState!.planifId,
+          classe_id:   routeState!.classeId,
+          nb_corriges: routeState!.nbCorriges,
+          eleve_id:    selectedEleveId ? Number(selectedEleveId) : undefined,
+        } : undefined,
+      },
+    })
   }
 
   const canProceed = !!previewUrl && !!selectedDicteeId && (!planifMode || !!selectedEleveId)
@@ -120,13 +112,14 @@ export default function Upload() {
             dictees={dictees}
             selectedDicteeId={selectedDicteeId}
             studentName={studentName}
-            loading={loading}
+            loading={false}
             canProceed={canProceed}
             onChange={setSelectedDicteeId}
             onStudentName={setStudentName}
-            onSubmit={() => { void handleDetect() }}
+            onSubmit={handleNext}
             planifMode={planifMode}
-            eleves={eleves}
+            eleves={eleves.filter(e => !correctedEleveIds.has(e.id))}
+            allElevesCount={eleves.length}
             selectedEleveId={selectedEleveId}
             onEleveChange={setSelectedEleveId}
           />

@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ChevronLeft, Plus, TrendingUp, TrendingDown, Eye, Users, BarChart2, BookOpen, AlertTriangle } from 'lucide-react'
+import { ChevronLeft, Plus, TrendingUp, TrendingDown, Eye, Users, BarChart2, BookOpen, AlertTriangle, Download, Loader2 } from 'lucide-react'
 import { getClasse, getClasseStats } from '../../../api/classes'
 import type { ClasseApi, ClasseStats, EleveStatItem } from '../../../api/classes'
 import { getPlanifications, type PlanificationDetail } from '../../../api/planifications'
+import { getCorrections } from '../../../api/corrections'
+import { getDictee } from '../../../api/dictees'
+import { saveClassePdf } from '../../Correction/Results/utils/pdfExport'
+import type { ClasseStudentEntry } from '../../Correction/Results/utils/pdfExport'
+import type { CategoryKey } from '../../Correction/constants'
 import StatusBadge from '../../Planning/components/StatusBadge'
 import ProgressionBar from '../../Planning/components/ProgressionBar'
 import ModalAjoutEleves from './components/ModalAjoutEleves'
@@ -72,6 +77,39 @@ function StatCard({ label, value, sub, iconBg, icon }: {
 
 function DicteePlanifRow({ planif }: { planif: PlanificationDetail }) {
   const navigate = useNavigate()
+  const [downloading, setDownloading] = useState(false)
+
+  async function handleDownloadPdf() {
+    setDownloading(true)
+    try {
+      const [corrections, dictee] = await Promise.all([
+        getCorrections(planif.id),
+        getDictee(planif.dictee_id),
+      ])
+      const today = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      const students: ClasseStudentEntry[] = corrections.map(c => ({
+        studentName: c.student_name,
+        score:       c.score,
+        counts: {
+          conjugaison: c.err_conjugaison,
+          homophone:   c.err_homophone,
+          accord:      c.err_accord,
+          majuscule:   c.err_majuscule,
+          ponctuation: c.err_ponctuation,
+          infinitif:   c.err_infinitif,
+          orthographe: c.err_orthographe,
+          nonPresent:  c.err_non_present,
+          son:         c.err_son,
+        } as Record<CategoryKey, number>,
+      }))
+      await saveClassePdf({ students, dictee, classeNom: planif.classe_nom, today })
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   return (
     <tr className="border-b border-[#f3f4f6] last:border-0 hover:bg-[#fafafa]">
       <td className="px-4 py-4">
@@ -100,16 +138,29 @@ function DicteePlanifRow({ planif }: { planif: PlanificationDetail }) {
       </td>
       <td className="px-4 py-4">
         {planif.statut === 'terminee' ? (
-          <button
-            type="button"
-            onClick={() => navigate(`/statistiques/planification/${planif.id}`, {
-              state: { titre: planif.dictee_titre, classe: planif.classe_nom },
-            })}
-            className="flex items-center gap-1 text-[14px] font-medium text-[#0a0a0a] hover:text-[#0091ad]"
-          >
-            <BarChart2 size={16} />
-            Voir les résultats
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate(`/statistiques/planification/${planif.id}`, {
+                state: { titre: planif.dictee_titre, classe: planif.classe_nom },
+              })}
+              className="flex items-center gap-1 text-[14px] font-medium text-[#0a0a0a] hover:text-[#0091ad]"
+            >
+              <BarChart2 size={16} />
+              Voir les résultats
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={downloading}
+              className="flex items-center gap-1 text-[14px] font-medium text-[#6a7282] hover:text-[#0091ad] disabled:opacity-50"
+            >
+              {downloading
+                ? <Loader2 size={16} className="animate-spin" />
+                : <Download size={16} />}
+              PDF
+            </button>
+          </div>
         ) : (
           <span className="text-[13px] text-[#c4c9d4]">—</span>
         )}

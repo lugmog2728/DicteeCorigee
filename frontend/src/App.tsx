@@ -14,6 +14,7 @@ import ClasseStats from './pages/Statistics/ClasseStats'
 import EleveStats from './pages/Statistics/EleveStats'
 import PlanificationStats from './pages/Statistics/PlanificationStats'
 import Correction from './pages/Correction/Upload'
+import CorrectionColor from './pages/Correction/Color'
 import Detection from './pages/Correction/Detection'
 import Validation from './pages/Correction/Validation'
 import Results from './pages/Correction/Results'
@@ -41,6 +42,7 @@ function App() {
                     <Route path="/statistiques/eleve/:eleveId" element={<EleveStats />} />
                     <Route path="/statistiques/planification/:planifId" element={<PlanificationStats />} />
                     <Route path="/correction" element={<Correction />} />
+                    <Route path="/correction/couleur" element={<CorrectionColor />} />
                     <Route path="/correction/detection" element={<Detection />} />
                     <Route path="/correction/validation" element={<Validation />} />
                     <Route path="/correction/results" element={<Results />} />

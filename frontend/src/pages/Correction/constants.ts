@@ -1,4 +1,4 @@
-export const STEPS = ['Téléverser', 'Détection', 'Validation'] as const
+export const STEPS = ['Téléverser', 'Couleur', 'Détection', 'Validation'] as const
 
 export const CATEGORIES = [
   { key: 'conjugaison', letter: 'C', label: 'Conjugaison',  color: 'var(--ocean-blue-500)',    bg: 'rgba(0,145,173,0.08)' },
@@ -38,6 +38,7 @@ export interface ErrorItem {
   w: number
   h: number
   status: 'pending' | 'validated' | 'rejected'
+  manual?: boolean
 }
 
 // Shared performance helper used in CategorySummary and DetailedScoreGrid

@@ -13,16 +13,17 @@ interface Props {
   onStudentName:    (name: string) => void
   onSubmit:         () => void
   // mode planification
-  planifMode?:      boolean
-  eleves?:          EleveApi[]
-  selectedEleveId?: number | ''
-  onEleveChange?:   (id: number | '') => void
+  planifMode?:        boolean
+  eleves?:            EleveApi[]
+  allElevesCount?:    number
+  selectedEleveId?:   number | ''
+  onEleveChange?:     (id: number | '') => void
 }
 
 export default function DicteeSelector({
   dictees, selectedDicteeId, studentName, loading, canProceed,
   onChange, onStudentName, onSubmit,
-  planifMode = false, eleves = [], selectedEleveId = '', onEleveChange,
+  planifMode = false, eleves = [], allElevesCount = 0, selectedEleveId = '', onEleveChange,
 }: Props) {
   const selectedDictee = dictees.find(d => d.id === selectedDicteeId) ?? null
 
@@ -60,9 +61,14 @@ export default function DicteeSelector({
               ))}
             </select>
             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#717182] pointer-events-none" />
-            {eleves.length === 0 && (
+            {eleves.length === 0 && allElevesCount === 0 && (
               <p className="text-[12px] text-[#e17100] mt-1">
                 Aucun élève dans cette classe. Ajoutez-en depuis la page Classes.
+              </p>
+            )}
+            {eleves.length === 0 && allElevesCount > 0 && (
+              <p className="text-[12px] text-[#00a63e] mt-1">
+                Tous les élèves ont déjà été corrigés pour cette planification.
               </p>
             )}
           </div>
@@ -115,7 +121,7 @@ export default function DicteeSelector({
       </div>
 
       <Button
-        label={loading ? 'Analyse en cours...' : 'Passer à la Détection'}
+        label={loading ? 'Chargement...' : 'Suivant'}
         variant="primary"
         icon={loading ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
         disabled={!canProceed || loading}

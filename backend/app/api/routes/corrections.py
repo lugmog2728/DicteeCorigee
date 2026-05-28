@@ -84,15 +84,15 @@ async def create_correction(
 
 @router.get("", response_model=list[CorrectionRead])
 async def list_corrections(
-    db:           AsyncSession = Depends(get_db),
-    current_user: User         = Depends(get_current_user),
+    planification_id: int | None  = None,
+    db:               AsyncSession = Depends(get_db),
+    current_user:     User         = Depends(get_current_user),
 ):
     from sqlalchemy import select
-    result = await db.execute(
-        select(Correction)
-        .where(Correction.user_id == current_user.id)
-        .order_by(Correction.created_at.desc())
-    )
+    q = select(Correction).where(Correction.user_id == current_user.id)
+    if planification_id is not None:
+        q = q.where(Correction.planification_id == planification_id)
+    result = await db.execute(q.order_by(Correction.created_at.desc()))
     return result.scalars().all()
 
 

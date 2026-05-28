@@ -32,14 +32,21 @@ export default function Results() {
       if (err.status === 'validated') c[err.category]++
     }
 
-    const wordCount = state.dictee.texte.split(/\s+/).filter(Boolean).length
     const total = Object.values(c).reduce((a, b) => a + b, 0)
-    const sc = Math.max(0, Math.round((wordCount - total) / wordCount * 100))
-    const neutralized = CATEGORIES.filter(
-      cat => cat.key !== 'orthographe' && (state.dictee.errors[cat.key as keyof typeof state.dictee.errors] ?? 0) === 0
-    ).length
 
-    return { counts: c, totalErrors: total, score: sc, neutralizedCount: neutralized, typesEvaluated: CATEGORIES.length - neutralized }
+    const activeCategories = CATEGORIES.filter(cat => state.dictee.errors[cat.key] > 0)
+    const neutralized = CATEGORIES.length - activeCategories.length
+
+    let sc = 0
+    if (activeCategories.length > 0) {
+      const rates = activeCategories.map(cat => {
+        const expected = state.dictee.errors[cat.key]
+        return Math.max(0, (expected - c[cat.key]) / expected * 100)
+      })
+      sc = Math.round(rates.reduce((a, b) => a + b, 0) / rates.length)
+    }
+
+    return { counts: c, totalErrors: total, score: sc, neutralizedCount: neutralized, typesEvaluated: activeCategories.length }
   }, [state])
 
   const saved = useRef(false)

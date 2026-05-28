@@ -8,6 +8,7 @@ import Stepper from '../components/Stepper'
 import AnnotatedImage from './components/AnnotatedImage'
 import ErrorCard from './components/ErrorCard'
 import QuickSummary from './components/QuickSummary'
+import ManualErrorAdder from './components/ManualErrorAdder'
 
 export default function Validation() {
   const navigate = useNavigate()
@@ -25,6 +26,7 @@ export default function Validation() {
       status: 'pending' as const,
     }))
   })
+  const [placementCategory, setPlacementCategory] = useState<CategoryKey | null>(null)
 
   useEffect(() => {
     if (!state) navigate('/correction', { replace: true })
@@ -60,6 +62,25 @@ export default function Validation() {
     setErrors(prev => prev.map(e => e.id === currentError.id ? { ...e, category, letter: CAT_BY_KEY[category].letter } : e))
   }
 
+  function placeManualError(x: number, y: number) {
+    if (!placementCategory) return
+    const cat = CAT_BY_KEY[placementCategory]
+    const SIZE = 50
+    setErrors(prev => [...prev, {
+      id:         Date.now(),
+      letter:     cat.letter,
+      category:   placementCategory,
+      confidence: 1,
+      x:          Math.max(0, x - SIZE / 2),
+      y:          Math.max(0, y - SIZE / 2),
+      w:          SIZE,
+      h:          SIZE,
+      status:     'validated',
+      manual:     true,
+    }])
+    setPlacementCategory(null)
+  }
+
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       <div className="flex flex-col gap-4">
@@ -79,7 +100,7 @@ export default function Validation() {
           </div>
         </div>
         <div className="flex items-center justify-between">
-          <Stepper activeStep={2} />
+          <Stepper activeStep={3} />
         </div>
       </div>
 
@@ -90,6 +111,8 @@ export default function Validation() {
           currentError={currentError}
           validatedCount={validatedCount}
           totalCount={errors.length}
+          placementCategory={placementCategory}
+          onPlaceManual={placeManualError}
         />
 
         <div className="flex-1 min-w-0 w-full flex flex-col gap-4">
@@ -125,6 +148,16 @@ export default function Validation() {
               </p>
             )}
           </div>
+
+          {!currentError && (
+            <ManualErrorAdder
+              manualErrors={errors.filter(e => e.manual)}
+              activePlacementCategory={placementCategory}
+              onStartPlacement={setPlacementCategory}
+              onCancelPlacement={() => setPlacementCategory(null)}
+              onRemove={id => setErrors(prev => prev.filter(e => e.id !== id))}
+            />
+          )}
 
           <QuickSummary counts={summaryCounts} />
         </div>
