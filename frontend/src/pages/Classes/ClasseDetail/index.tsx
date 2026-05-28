@@ -3,7 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ChevronLeft, Plus, TrendingUp, TrendingDown, Eye, Users, BarChart2, BookOpen, AlertTriangle } from 'lucide-react'
 import { getClasse, getClasseStats } from '../../../api/classes'
 import type { ClasseApi, ClasseStats, EleveStatItem } from '../../../api/classes'
+import { getPlanifications, type PlanificationDetail } from '../../../api/planifications'
+import StatusBadge from '../../Planning/components/StatusBadge'
+import ProgressionBar from '../../Planning/components/ProgressionBar'
 import ModalAjoutEleves from './components/ModalAjoutEleves'
+
+function formatDate(dateStr: string): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('fr-FR', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  })
+}
 
 function formatRelativeDate(dateStr: string | null): string {
   if (!dateStr) return '—'
@@ -61,6 +70,54 @@ function StatCard({ label, value, sub, iconBg, icon }: {
   )
 }
 
+function DicteePlanifRow({ planif }: { planif: PlanificationDetail }) {
+  const navigate = useNavigate()
+  return (
+    <tr className="border-b border-[#f3f4f6] last:border-0 hover:bg-[#fafafa]">
+      <td className="px-4 py-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-[15px] font-medium text-[#101828]">{planif.dictee_titre}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="px-1.5 py-0.5 rounded text-[11px] font-medium text-[#0091ad] bg-[#e6f7fa]">
+              {planif.dictee_niveau}
+            </span>
+            {planif.dictee_tag && (
+              <span className="px-1.5 py-0.5 rounded text-[11px] font-medium text-[#8200db] bg-[#faf5ff]">
+                {planif.dictee_tag}
+              </span>
+            )}
+          </div>
+        </div>
+      </td>
+      <td className="px-4 py-4 text-[14px] text-[#101828]">
+        {formatDate(planif.date_prevue)}
+      </td>
+      <td className="px-4 py-4">
+        <StatusBadge statut={planif.statut} />
+      </td>
+      <td className="px-4 py-4">
+        <ProgressionBar nbCorriges={planif.nb_corriges} nbEleves={planif.nb_eleves} />
+      </td>
+      <td className="px-4 py-4">
+        {planif.statut === 'terminee' ? (
+          <button
+            type="button"
+            onClick={() => navigate(`/statistiques/planification/${planif.id}`, {
+              state: { titre: planif.dictee_titre, classe: planif.classe_nom },
+            })}
+            className="flex items-center gap-1 text-[14px] font-medium text-[#0a0a0a] hover:text-[#0091ad]"
+          >
+            <BarChart2 size={16} />
+            Voir les résultats
+          </button>
+        ) : (
+          <span className="text-[13px] text-[#c4c9d4]">—</span>
+        )}
+      </td>
+    </tr>
+  )
+}
+
 function EleveRow({ eleve }: { eleve: EleveStatItem }) {
   const navigate = useNavigate()
   return (
@@ -106,18 +163,22 @@ export default function ClasseDetail() {
 
   const [classe, setClasse]   = useState<ClasseApi | null>(null)
   const [stats, setStats]     = useState<ClasseStats | null>(null)
+  const [planifs, setPlanifs] = useState<PlanificationDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<'eleves' | 'dictees'>('eleves')
 
   async function fetchData() {
     if (!classeId) return
     try {
-      const [c, s] = await Promise.all([
+      const [c, s, allPlanifs] = await Promise.all([
         getClasse(Number(classeId)),
         getClasseStats(Number(classeId)),
+        getPlanifications(),
       ])
       setClasse(c)
       setStats(s)
+      setPlanifs(allPlanifs.filter((p) => p.classe_id === Number(classeId)))
     } finally {
       setLoading(false)
     }
@@ -210,33 +271,83 @@ export default function ClasseDetail() {
         />
       </div>
 
-      {/* Students table */}
+      {/* Tabbed table */}
       <div className="bg-white border border-[rgba(0,0,0,0.1)] rounded-[14px] overflow-hidden">
-        <div className="px-6 py-5">
-          <h2 className="text-[18px] font-medium text-black">Résultats des élèves</h2>
+
+        {/* Tab headers */}
+        <div className="flex items-center px-6 border-b border-[#f3f4f6]">
+          {(['eleves', 'dictees'] as const).map((tab) => {
+            const isActive = activeTab === tab
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className="flex items-center gap-2 py-4 mr-6 text-[14px] font-medium border-b-2 transition-colors"
+                style={{
+                  borderColor: isActive ? 'var(--ocean-blue-500)' : 'transparent',
+                  color: isActive ? 'var(--ocean-blue-600)' : '#9ca3af',
+                  marginBottom: '-1px',
+                }}
+              >
+                {tab === 'eleves' ? 'Résultats des élèves' : 'Dictées planifiées'}
+              </button>
+            )
+          })}
         </div>
-        {stats.eleves.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <p className="text-[16px] font-medium text-[#364153]">Aucun élève pour l'instant</p>
-            <p className="text-[14px] text-[#6a7282]">Ajoutez des élèves pour commencer</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-[#e5e7eb]">
-                  {["Nom de l'Élève", 'Moyenne', 'Dernière Dictée', 'Total Dictées', 'Dernière Date', 'Actions'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-[12px] font-medium text-[#6a7282] uppercase tracking-wide whitespace-nowrap">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {stats.eleves.map(eleve => <EleveRow key={eleve.id} eleve={eleve} />)}
-              </tbody>
-            </table>
-          </div>
+
+        {/* Tab: Élèves */}
+        {activeTab === 'eleves' && (
+          stats.eleves.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <p className="text-[16px] font-medium text-[#364153]">Aucun élève pour l'instant</p>
+              <p className="text-[14px] text-[#6a7282]">Ajoutez des élèves pour commencer</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#e5e7eb]">
+                    {["Nom de l'Élève", 'Moyenne', 'Dernière Dictée', 'Total Dictées', 'Dernière Date', 'Actions'].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[12px] font-medium text-[#6a7282] uppercase tracking-wide whitespace-nowrap">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.eleves.map(eleve => <EleveRow key={eleve.id} eleve={eleve} />)}
+                </tbody>
+              </table>
+            </div>
+          )
+        )}
+
+        {/* Tab: Dictées */}
+        {activeTab === 'dictees' && (
+          planifs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <p className="text-[16px] font-medium text-[#364153]">Aucune dictée planifiée</p>
+              <p className="text-[14px] text-[#6a7282]">Planifiez une dictée pour cette classe</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#e5e7eb]">
+                    {['Dictée', 'Date', 'Statut', 'Progression', 'Actions'].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[12px] font-medium text-[#6a7282] uppercase tracking-wide whitespace-nowrap">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {planifs.map(p => <DicteePlanifRow key={p.id} planif={p} />)}
+                </tbody>
+              </table>
+            </div>
+          )
         )}
       </div>
 
