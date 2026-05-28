@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { CAT_BY_KEY } from '../../constants'
-import type { ErrorItem } from '../../constants'
+import type { CategoryKey, ErrorItem } from '../../constants'
 
 interface Props {
-  previewUrl: string
-  errors: ErrorItem[]
-  currentError: ErrorItem | null
-  validatedCount: number
-  totalCount: number
+  previewUrl:              string
+  errors:                  ErrorItem[]
+  currentError:            ErrorItem | null
+  validatedCount:          number
+  totalCount:              number
+  placementCategory?:      CategoryKey | null
+  onPlaceManual?:          (x: number, y: number) => void
 }
 
 function computeCrop(error: ErrorItem, naturalW: number, naturalH: number) {
@@ -19,7 +21,10 @@ function computeCrop(error: ErrorItem, naturalW: number, naturalH: number) {
   return { x, y, w: r - x, h: b - y }
 }
 
-export default function AnnotatedImage({ previewUrl, errors, currentError, validatedCount, totalCount }: Props) {
+export default function AnnotatedImage({
+  previewUrl, errors, currentError, validatedCount, totalCount,
+  placementCategory = null, onPlaceManual,
+}: Props) {
   const hiddenImgRef = useRef<HTMLImageElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [naturalSize, setNaturalSize] = useState({ w: 1, h: 1 })
@@ -98,15 +103,55 @@ export default function AnnotatedImage({ previewUrl, errors, currentError, valid
         <span className="text-[14px] text-[#6a7282]">{validatedCount} / {totalCount} validées</span>
       </div>
 
+      {/* Copie complète annotée — quand tout est traité OU quand on est en mode placement */}
+      {(!currentError || placementCategory) && naturalSize.w > 1 && (
+        <div
+          className={`relative rounded-[10px] overflow-hidden${placementCategory ? ' cursor-crosshair' : ''}`}
+          style={{ paddingTop: `${naturalSize.h / naturalSize.w * 100}%` }}
+          onClick={placementCategory ? (e) => {
+            const rect = e.currentTarget.getBoundingClientRect()
+            onPlaceManual?.((e.clientX - rect.left) / rect.width * naturalSize.w, (e.clientY - rect.top) / rect.height * naturalSize.h)
+          } : undefined}
+        >
+          <img src={previewUrl} alt="" className="absolute inset-0 w-full h-full object-contain" />
+          {placementCategory && (
+            <div className="absolute inset-x-0 top-2 flex justify-center pointer-events-none z-10">
+              <div
+                className="text-white text-[12px] font-medium px-3 py-1.5 rounded-full shadow"
+                style={{ backgroundColor: CAT_BY_KEY[placementCategory].color }}
+              >
+                Cliquez pour placer — {CAT_BY_KEY[placementCategory].label}
+              </div>
+            </div>
+          )}
+          {errors.filter(e => e.status === 'validated').map(err => {
+            const cat = CAT_BY_KEY[err.category]
+            return (
+              <div
+                key={err.id}
+                className="absolute rounded-full flex items-center justify-center text-white font-bold pointer-events-none"
+                style={{
+                  left:            `${(err.x + err.w / 2) / naturalSize.w * 100}%`,
+                  top:             `${(err.y + err.h / 2) / naturalSize.h * 100}%`,
+                  width:           28,
+                  height:          28,
+                  fontSize:        13,
+                  transform:       'translate(-50%, -50%)',
+                  backgroundColor: cat.color,
+                  boxShadow:       '0 1px 4px rgba(0,0,0,0.35)',
+                }}
+              >
+                {err.letter}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
       {/* Crop zoomé via canvas + miniature superposée dans le coin inférieur droit */}
+      {currentError && !placementCategory && (
       <div className="relative bg-[#f3f4f6] rounded-[10px] overflow-hidden">
-        {currentError ? (
-          <canvas ref={canvasRef} className="w-full block" />
-        ) : (
-          <div className="p-10 flex items-center justify-center text-[14px] text-[#6a7282]">
-            Toutes les erreurs ont été traitées
-          </div>
-        )}
+        <canvas ref={canvasRef} className="w-full block" />
 
         {naturalSize.w > 1 && (() => {
           const thumbH = 88
@@ -115,7 +160,7 @@ export default function AnnotatedImage({ previewUrl, errors, currentError, valid
           const invPx = Math.round(1 / scale)
           return (
             <div
-              className="absolute bottom-2 right-2 overflow-hidden rounded-[6px] shadow-lg cursor-pointer"
+              className="absolute bottom-2 right-2 overflow-hidden rounded-md shadow-lg cursor-pointer"
               style={{ height: thumbH, width: thumbW, border: '1.5px solid rgba(255,255,255,0.6)' }}
               onClick={() => setShowFullImage(true)}
               title="Voir la copie complète"
@@ -164,6 +209,7 @@ export default function AnnotatedImage({ previewUrl, errors, currentError, valid
           )
         })()}
       </div>
+      )}
 
       {/* Lightbox — copie complète avec toutes les erreurs */}
       {showFullImage && (
@@ -172,7 +218,7 @@ export default function AnnotatedImage({ previewUrl, errors, currentError, valid
           onClick={() => setShowFullImage(false)}
         >
           <div
-            className="relative w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-[12px] bg-white shadow-2xl"
+            className="relative w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-xl bg-white shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <button
