@@ -1,4 +1,5 @@
 import Typography from '../../components/Typography'
+import UnderConstruction from '../../components/UnderConstruction'
 
 export default function Statistics() {
   return (
@@ -7,6 +8,7 @@ export default function Statistics() {
         <Typography variant="h1">Statistiques</Typography>
         <Typography variant="subtitle">Analyses approfondies et insights pédagogiques</Typography>
       </div>
+      <UnderConstruction pageName="Statistiques" />
     </div>
   )
 }
