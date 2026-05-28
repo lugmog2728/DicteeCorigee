@@ -12,6 +12,25 @@ def build_red_mask(hsv):
     return cv2.bitwise_or(masks[0], cv2.bitwise_or(masks[1], masks[2]))
 
 
+def build_custom_color_mask(hsv, h: float, s: float, v: float,
+                            h_margin: float = 15, s_margin: float = 60, v_margin: float = 70):
+    s_lo = int(max(30,  s - s_margin))
+    s_hi = int(min(255, s + s_margin))
+    v_lo = int(max(40,  v - v_margin))
+    v_hi = int(min(255, v + v_margin))
+    h_lo = h - h_margin
+    h_hi = h + h_margin
+    if h_lo < 0:
+        m1 = cv2.inRange(hsv, np.array([0,            s_lo, v_lo]), np.array([int(h_hi), s_hi, v_hi]))
+        m2 = cv2.inRange(hsv, np.array([int(h_lo+180), s_lo, v_lo]), np.array([180,       s_hi, v_hi]))
+        return cv2.bitwise_or(m1, m2)
+    if h_hi > 180:
+        m1 = cv2.inRange(hsv, np.array([int(h_lo), s_lo, v_lo]), np.array([180,           s_hi, v_hi]))
+        m2 = cv2.inRange(hsv, np.array([0,         s_lo, v_lo]), np.array([int(h_hi-180), s_hi, v_hi]))
+        return cv2.bitwise_or(m1, m2)
+    return cv2.inRange(hsv, np.array([int(h_lo), s_lo, v_lo]), np.array([int(h_hi), s_hi, v_hi]))
+
+
 def build_red_mask_lab(img):
     lab  = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     l_ch = lab[:, :, 0]
@@ -110,10 +129,14 @@ def detect_text_zone(img):
     return x1, y1, x2, y2
 
 
-def extract_rois(img, verbose=False, filter_phrases=True):
+def extract_rois(img, target_hsv=None, verbose=False, filter_phrases=True):
     h_img, w_img = img.shape[:2]
     tx1, ty1, tx2, ty2 = detect_text_zone(img)
-    mask_full = build_red_mask_lab(img)
+    if target_hsv is not None:
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        mask_full = build_custom_color_mask(hsv, *target_hsv)
+    else:
+        mask_full = build_red_mask_lab(img)
     zone      = np.zeros_like(mask_full)
     zone[ty1:ty2, tx1:tx2] = 255
     mask = cv2.bitwise_and(mask_full, zone)
@@ -148,9 +171,12 @@ def extract_rois(img, verbose=False, filter_phrases=True):
     return _filter_outliers(raw)
 
 
-def roi_to_emnist(roi_bgr):
-    hsv  = cv2.cvtColor(roi_bgr, cv2.COLOR_BGR2HSV)
-    mask = build_red_mask(hsv)
+def roi_to_emnist(roi_bgr, target_hsv=None):
+    hsv = cv2.cvtColor(roi_bgr, cv2.COLOR_BGR2HSV)
+    if target_hsv is not None:
+        mask = build_custom_color_mask(hsv, *target_hsv)
+    else:
+        mask = build_red_mask(hsv)
     mask = cv2.dilate(mask, np.ones((2, 2), np.uint8), iterations=1)
     h, w = mask.shape[:2]
     n, labels, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)

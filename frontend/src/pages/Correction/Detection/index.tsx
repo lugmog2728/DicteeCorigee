@@ -54,7 +54,7 @@ export default function Detection() {
             <span className="truncate">{dictee.titre}</span>
           </div>
         </div>
-        <Stepper activeStep={1} />
+        <Stepper activeStep={2} />
       </div>
 
       <div className="flex flex-col md:flex-row gap-6 items-start">
