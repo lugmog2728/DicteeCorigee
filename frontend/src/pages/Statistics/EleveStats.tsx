@@ -331,7 +331,7 @@ export default function EleveStats() {
   }, [corrections])
 
   const mainWeakness = useMemo(() => {
-    let max = -1, cat = CATEGORIES[0]
+    let max = -1, cat: (typeof CATEGORIES)[number] = CATEGORIES[0]
     for (const c of CATEGORIES) {
       if (errorsPerCat[c.key] > max) { max = errorsPerCat[c.key]; cat = c }
     }
@@ -339,7 +339,7 @@ export default function EleveStats() {
   }, [errorsPerCat])
 
   const mainStrength = useMemo(() => {
-    let min = Infinity, cat = CATEGORIES[0]
+    let min = Infinity, cat: (typeof CATEGORIES)[number] = CATEGORIES[0]
     for (const c of CATEGORIES) {
       if (errorsPerCat[c.key] < min) { min = errorsPerCat[c.key]; cat = c }
     }

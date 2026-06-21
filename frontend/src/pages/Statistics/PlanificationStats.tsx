@@ -271,7 +271,7 @@ export default function PlanificationStats() {
   }, [errorsPerCat, corrections.length])
 
   const mainWeakness = useMemo(() => {
-    let max = -1, cat = CATEGORIES[0]
+    let max = -1, cat: (typeof CATEGORIES)[number] = CATEGORIES[0]
     for (const c of CATEGORIES) {
       if (errorsPerCat[c.key] > max) { max = errorsPerCat[c.key]; cat = c }
     }

@@ -334,19 +334,6 @@ export default function ClasseStats() {
     [corrections, eleveIds]
   )
 
-  // One most-recent correction per eleve
-  const latestByEleve = useMemo(() => {
-    const map = new Map<number, CorrectionRead>()
-    for (const c of classeCorrections) {
-      if (c.eleve_id == null) continue
-      const existing = map.get(c.eleve_id)
-      if (!existing || c.created_at > existing.created_at) {
-        map.set(c.eleve_id, c)
-      }
-    }
-    return map
-  }, [classeCorrections])
-
   // Level distribution from eleves.moyenne
   const levelCounts = useMemo(() => {
     const counts = [0, 0, 0, 0]
@@ -408,7 +395,7 @@ export default function ClasseStats() {
 
   // Dominant difficulty (most errors category)
   const mainDifficulty = useMemo(() => {
-    let maxCat = CATEGORIES[0]
+    let maxCat: (typeof CATEGORIES)[number] = CATEGORIES[0]
     let maxVal = 0
     for (const cat of CATEGORIES) {
       if (errorsPerCat[cat.key] > maxVal) {
