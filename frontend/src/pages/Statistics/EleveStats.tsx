@@ -172,7 +172,7 @@ function ErrorEvolutionChart({ points, filteredCats }: { points: DicteePoint[]; 
   function xPos(i: number) { return PAD.left + (i / Math.max(points.length - 1, 1)) * chartW }
   function yPos(v: number) { return PAD.top + chartH - (v / maxErr) * chartH }
 
-  const yTicks = [0, Math.round(maxErr / 2), maxErr]
+  const yTicks = [...new Set([0, Math.round(maxErr / 2), maxErr])]
 
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet">
