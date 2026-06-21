@@ -1,3 +1,4 @@
+import React from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
 import { MemoryRouter, type MemoryRouterProps } from 'react-router-dom'
 import { AuthProvider } from '../contexts/AuthContext'
