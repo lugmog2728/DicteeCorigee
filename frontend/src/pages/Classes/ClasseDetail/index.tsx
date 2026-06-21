@@ -142,7 +142,15 @@ function DicteePlanifRow({ planif }: { planif: PlanificationDetail }) {
             <button
               type="button"
               onClick={() => navigate(`/statistiques/planification/${planif.id}`, {
-                state: { titre: planif.dictee_titre, classe: planif.classe_nom },
+                state: {
+                  titre:      planif.dictee_titre,
+                  classe:     planif.classe_nom,
+                  classeId:   planif.classe_id,
+                  nbEleves:   planif.nb_eleves,
+                  datePrevue: planif.date_prevue,
+                  niveau:     planif.dictee_niveau,
+                  nbCorriges: planif.nb_corriges,
+                },
               })}
               className="flex items-center gap-1 text-[14px] font-medium text-[#0a0a0a] hover:text-[#0091ad]"
             >

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { ChevronLeft, BarChart2, BookOpen, Clock, TrendingUp, TrendingDown, AlertTriangle, Lightbulb, Eye, ChevronDown } from 'lucide-react'
+import { ChevronLeft, BarChart2, BookOpen, Clock, TrendingUp, TrendingDown, AlertTriangle, Lightbulb, ChevronDown } from 'lucide-react'
 import { getCorrections } from '../../api/corrections'
 import type { CorrectionRead } from '../../api/corrections'
 import { getDictees } from '../../api/dictees'
@@ -595,7 +595,6 @@ export default function EleveStats() {
                 <th className="px-6 py-3 text-[12px] font-medium text-[#6a7282] uppercase tracking-wider">Date</th>
                 <th className="px-6 py-3 text-[12px] font-medium text-[#6a7282] uppercase tracking-wider">Note</th>
                 <th className="px-6 py-3 text-[12px] font-medium text-[#6a7282] uppercase tracking-wider">Total Erreurs</th>
-                <th className="px-6 py-3 text-[12px] font-medium text-[#6a7282] uppercase tracking-wider">Détail</th>
               </tr>
             </thead>
             <tbody>
@@ -621,15 +620,6 @@ export default function EleveStats() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-[14px] text-[#101828]">{corr.nb_errors}</td>
-                    <td className="px-6 py-4">
-                      <button
-                        type="button"
-                        className="flex items-center gap-1.5 text-[13px] font-medium text-[#0091ad] hover:text-[#005768] transition-colors"
-                      >
-                        <Eye size={14} />
-                        Voir
-                      </button>
-                    </td>
                   </tr>
                 )
               })}
