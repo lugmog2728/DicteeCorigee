@@ -19,7 +19,15 @@ export default function PlanningTableRow({ planif }: PlanningTableRowProps) {
   function handleAction() {
     if (planif.statut === 'terminee') {
       navigate(`/statistiques/planification/${planif.id}`, {
-        state: { titre: planif.dictee_titre, classe: planif.classe_nom },
+        state: {
+          titre:      planif.dictee_titre,
+          classe:     planif.classe_nom,
+          classeId:   planif.classe_id,
+          nbEleves:   planif.nb_eleves,
+          datePrevue: planif.date_prevue,
+          niveau:     planif.dictee_niveau,
+          nbCorriges: planif.nb_corriges,
+        },
       })
     } else {
       navigate('/correction', {

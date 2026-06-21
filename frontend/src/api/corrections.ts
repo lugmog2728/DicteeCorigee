@@ -41,6 +41,7 @@ export interface CorrectionRead {
   err_orthographe:  number
   err_non_present:  number
   err_son:          number
+  created_at:       string
 }
 
 export async function getCorrections(planificationId?: number): Promise<CorrectionRead[]> {

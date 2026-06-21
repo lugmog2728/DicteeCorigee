@@ -142,7 +142,15 @@ function DicteePlanifRow({ planif }: { planif: PlanificationDetail }) {
             <button
               type="button"
               onClick={() => navigate(`/statistiques/planification/${planif.id}`, {
-                state: { titre: planif.dictee_titre, classe: planif.classe_nom },
+                state: {
+                  titre:      planif.dictee_titre,
+                  classe:     planif.classe_nom,
+                  classeId:   planif.classe_id,
+                  nbEleves:   planif.nb_eleves,
+                  datePrevue: planif.date_prevue,
+                  niveau:     planif.dictee_niveau,
+                  nbCorriges: planif.nb_corriges,
+                },
               })}
               className="flex items-center gap-1 text-[14px] font-medium text-[#0a0a0a] hover:text-[#0091ad]"
             >
@@ -169,7 +177,7 @@ function DicteePlanifRow({ planif }: { planif: PlanificationDetail }) {
   )
 }
 
-function EleveRow({ eleve }: { eleve: EleveStatItem }) {
+function EleveRow({ eleve, classeNom, classeId }: { eleve: EleveStatItem; classeNom: string; classeId: number }) {
   const navigate = useNavigate()
   return (
     <tr className="border-b border-[#f3f4f6] last:border-0 hover:bg-[#fafafa]">
@@ -197,7 +205,7 @@ function EleveRow({ eleve }: { eleve: EleveStatItem }) {
       <td className="px-4 py-4">
         <button
           type="button"
-          onClick={() => navigate(`/statistiques/eleve/${eleve.id}`, { state: { nom: `${eleve.prenom} ${eleve.initiale}.` } })}
+          onClick={() => navigate(`/statistiques/eleve/${eleve.id}`, { state: { nom: `${eleve.prenom} ${eleve.initiale}.`, dispositif: eleve.dispositif, classeNom, classeId, eleve } })}
           className="flex items-center gap-1 text-[14px] font-medium text-[#0a0a0a] hover:text-[#0091ad]"
         >
           <Eye size={16} />
@@ -367,7 +375,7 @@ export default function ClasseDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  {stats.eleves.map(eleve => <EleveRow key={eleve.id} eleve={eleve} />)}
+                  {stats.eleves.map(eleve => <EleveRow key={eleve.id} eleve={eleve} classeNom={classe?.nom ?? ''} classeId={Number(classeId)} />)}
                 </tbody>
               </table>
             </div>
